@@ -36,3 +36,4 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 pred = predict(Theta1, Theta2, feature_mat);
 fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == y)) * 100);
+%save -6 ../data/NN_param.mat Theta1 Theta2
