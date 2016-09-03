@@ -5,6 +5,8 @@ num_labels = 2;
 
 fprintf('Loading Data ...\n')
 load('feature_mat.mat');
+feature_mat = [vessel_feature_mat; non_vessel_feature_mat];
+y = [ones(size(vessel_feature_mat,1),1); ones(size(non_vessel_feature_mat,1),1)*2];
 m = size(feature_mat, 1);
 
 fprintf('\nInitializing Neural Network Parameters ...\n')
@@ -32,5 +34,5 @@ Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
                  num_labels, (hidden_layer_size + 1));
 
-pred = predict(Theta1, Theta2, X);
+pred = predict(Theta1, Theta2, feature_mat);
 fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == y)) * 100);
