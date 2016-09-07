@@ -6,7 +6,7 @@ num_labels = 2;
 fprintf('Loading Data ...\n')
 load('feature_mat.mat');
 feature_mat = [vessel_feature_mat; non_vessel_feature_mat];
-y = [ones(size(vessel_feature_mat,1),1); ones(size(non_vessel_feature_mat,1),1)*2];
+y = [ones(size(vessel_feature_mat,1),1)*2; ones(size(non_vessel_feature_mat,1),1)];
 m = size(feature_mat, 1);
 
 fprintf('\nInitializing Neural Network Parameters ...\n')

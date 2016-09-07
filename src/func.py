@@ -8,8 +8,9 @@ import numpy as np
 import cv2
 
 def extractFeatures(img,scales):
-    shape = (np.size(img,0),np.size(img,1),len(scales)*5)
+    shape = (np.size(img,0),np.size(img,1),len(scales)*5+1)
     feature_cube = np.zeros(shape)
+    feature_cube[:,:,0] = 1  # First element of each feature vector is 1
     for i in range(len(scales)):
         scaled = ScaledImg(img,scales[i])
         Ix = scaled.getDerivX()[:,:,np.newaxis]
@@ -17,9 +18,9 @@ def extractFeatures(img,scales):
         Ixx = scaled.getDerivXX()[:,:,np.newaxis]
         Iyy = scaled.getDerivYY()[:,:,np.newaxis]
         Ixy = scaled.getDerivXY()[:,:,np.newaxis]
-        feature_cube[:,:,5*i:5*i+5] = np.concatenate((Ix,Iy,Ixx,Iyy,Ixy),axis=2)
-    feature_mat = np.reshape(feature_cube,(shape[0]*shape[1],shape[2]))
-    return feature_mat # need to append 0 column
+        feature_cube[:,:,5*i+1:5*i+5+1] = np.concatenate((Ix,Iy,Ixx,Iyy,Ixy),axis=2)
+    feature_mat = np.reshape(feature_cube,(shape[0]*shape[1],shape[2]),'F')
+    return feature_mat
 
 def makeFeatureMatrix(img,index,scales):
     sample_size = np.size(index[0])
