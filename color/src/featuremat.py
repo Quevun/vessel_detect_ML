@@ -7,29 +7,52 @@ Created on Thu Sep 08 09:46:31 2016
 import numpy as np
 import cv2
 
-class FeatureMat(object):
-    def __init__(self,img,scales):
+class FeatureMatMaker(object):
+    def __init__(self,img,index,scales):
         assert np.size(img,2) == 3
         assert img.dtype == 'uint8'
         self.img = img
+        self.index = index
         self.scales = scales
+        self.sample_size = np.size(index[0])
         
-    def getMat(self,index):
-        sample_size = np.size(index[0])
-        num_scales = len(self.scales)
-        v = [np.zeros((num_scales,15)) for _ in xrange(sample_size)]
+    def getMat(self,is_vessel = True):
+        if is_vessel:   # Extract vessel features
+            num_scales = len(self.scales)
+            v = [np.zeros((num_scales,15)) for _ in xrange(self.sample_size)]
+            
+            for i in range(num_scales): 
+                scaled = self.getScaledImg(self.img,self.scales[i])
+                deriv_mat = self.getDerivMat(scaled)
+                for j in range(self.sample_size):
+                    v[j][i,:] = deriv_mat[:,j]
+            feature_mat = np.zeros((self.sample_size,15*num_scales))
+            for i in range(len(v)):
+                feature_mat[i,:] = v[i].flatten()
+            return feature_mat
+            
+        elif not is_vessel: #Extract random non-vessel features
+            y = self.index[0][np.newaxis,:]
+            x = self.index[1][np.newaxis,:]
+            vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
+            vessel_ind_struc = vessel_ind_struc.view([('y',np.uint32),
+                                                      ('x',np.uint32)]) # structured array with (y,x) elements
+            y = np.random.randint(self.img.shape[0],size=self.sample_size)[np.newaxis,:]
+            x = np.random.randint(self.img.shape[1],size=self.sample_size)[np.newaxis,:]
+            non_vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
+            non_vessel_ind_struc = non_vessel_ind_struc.view([('y',np.uint32),
+                                                              ('x',np.uint32)])
+            non_vessel_ind_struc = np.unique(non_vessel_ind_struc)
         
-        for i in range(num_scales): 
-            scaled = self.getScaledImg(self.img,self.scales[i])
-            deriv_mat = self.getDerivMat(scaled,index)
-            for j in range(sample_size):
-                v[j][i,:] = deriv_mat[:,j]
-        feature_mat = np.zeros((sample_size,15*num_scales))
-        for i in range(len(v)):
-            feature_mat[i,:] = v[i].flatten()
-        return feature_mat
+            intersects = np.intersect1d(vessel_ind_struc,non_vessel_ind_struc,True)
+            for intersect in intersects:
+                non_vessel_ind_struc = np.delete(non_vessel_ind_struc, np.where(non_vessel_ind_struc==intersect))
+            
+            non_vessel_ind = (non_vessel_ind_struc['y'],non_vessel_ind_struc['x'])
+            
+            return non_vessel_ind
         
-    def getDerivMat(self,scaled,index):
+    def getDerivMat(self,scaled):
         first = scaled[:,:,0]   #first,second and third slice in axis 2
         second = scaled[:,:,1]
         third = scaled[:,:,2]
@@ -50,21 +73,21 @@ class FeatureMat(object):
         yy3 = cv2.Sobel(third,cv2.CV_64F,0,2)
         xy3 = cv2.Sobel(third,cv2.CV_64F,1,1)
         
-        ux1 = x1[index][np.newaxis,:] # Derivatives that correspond to coordinate of vessels
-        uy1 = y1[index][np.newaxis,:]
-        uxx1 = xx1[index][np.newaxis,:]
-        uyy1 = yy1[index][np.newaxis,:]
-        uxy1 = xy1[index][np.newaxis,:]
-        ux2 = x2[index][np.newaxis,:]
-        uy2 = y2[index][np.newaxis,:]
-        uxx2 = xx2[index][np.newaxis,:]
-        uyy2 = yy2[index][np.newaxis,:]
-        uxy2 = xy2[index][np.newaxis,:]
-        ux3 = x3[index][np.newaxis,:]
-        uy3 = y3[index][np.newaxis,:]
-        uxx3 = xx3[index][np.newaxis,:]
-        uyy3 = yy3[index][np.newaxis,:]
-        uxy3 = xy3[index][np.newaxis,:]
+        ux1 = x1[self.index][np.newaxis,:] # Derivatives that correspond to coordinate of vessels
+        uy1 = y1[self.index][np.newaxis,:]
+        uxx1 = xx1[self.index][np.newaxis,:]
+        uyy1 = yy1[self.index][np.newaxis,:]
+        uxy1 = xy1[self.index][np.newaxis,:]
+        ux2 = x2[self.index][np.newaxis,:]
+        uy2 = y2[self.index][np.newaxis,:]
+        uxx2 = xx2[self.index][np.newaxis,:]
+        uyy2 = yy2[self.index][np.newaxis,:]
+        uxy2 = xy2[self.index][np.newaxis,:]
+        ux3 = x3[self.index][np.newaxis,:]
+        uy3 = y3[self.index][np.newaxis,:]
+        uxx3 = xx3[self.index][np.newaxis,:]
+        uyy3 = yy3[self.index][np.newaxis,:]
+        uxy3 = xy3[self.index][np.newaxis,:]
         
         deriv_mat = np.concatenate((ux1,uy1,uxx1,uyy1,uxy1,
                                     ux2,uy2,uxx2,uyy2,uxy2,
