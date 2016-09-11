@@ -35,21 +35,21 @@ class FeatureMatMaker(object):
             y = self.index[0][np.newaxis,:]
             x = self.index[1][np.newaxis,:]
             vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
-            vessel_ind_struc = vessel_ind_struc.view([('y',np.uint32),
-                                                      ('x',np.uint32)]) # structured array with (y,x) elements
+            vessel_ind_struc = vessel_ind_struc.view([('y',np.int64),
+                                                      ('x',np.int64)]) # structured array with (y,x) elements
             y = np.random.randint(self.img.shape[0],size=self.sample_size)[np.newaxis,:]
             x = np.random.randint(self.img.shape[1],size=self.sample_size)[np.newaxis,:]
             non_vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
-            non_vessel_ind_struc = non_vessel_ind_struc.view([('y',np.uint32),
-                                                              ('x',np.uint32)])
+            non_vessel_ind_struc = non_vessel_ind_struc.astype(np.int64)
+            non_vessel_ind_struc = non_vessel_ind_struc.view([('y',np.int64),
+                                                              ('x',np.int64)])
             non_vessel_ind_struc = np.unique(non_vessel_ind_struc)
         
             intersects = np.intersect1d(vessel_ind_struc,non_vessel_ind_struc,True)
             for intersect in intersects:
                 non_vessel_ind_struc = np.delete(non_vessel_ind_struc, np.where(non_vessel_ind_struc==intersect))
             
-            non_vessel_ind = (non_vessel_ind_struc['y'],non_vessel_ind_struc['x'])
-            
+            non_vessel_ind = (non_vessel_ind_struc['y'],non_vessel_ind_struc['x'])          
             return non_vessel_ind
         
     def getDerivMat(self,scaled):

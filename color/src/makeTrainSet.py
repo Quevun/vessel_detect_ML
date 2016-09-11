@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 import scipy.io
 import featuremat
+import anaFunc
 
 def randNonVessel(shape,vessel_index):
     sample_size = np.size(vessel_index[0])
@@ -37,18 +38,16 @@ if __name__ == "__main__":
     img = cv2.imread('../data/color/tanaka1.bmp')
     vessel_index = np.nonzero(vessel_bin)
     feature_mat_maker = featuremat.FeatureMatMaker(img,vessel_index,scales)
-    vessel_feature_mat = feature_mat_maker.getMat()
+    #vessel_feature_mat = feature_mat_maker.getMat()
     
-    non_vessel_ind = feature_mat_maker.getMat(False)
+    non_vessel_ind = feature_mat_maker.getMat(is_vessel=False)
     gray = cv2.imread('../data/IR/tanaka1.bmp',0)
     vessels = np.copy(gray)
     vessels[non_vessel_ind] = 255
     vessels = vessels*(vessel_bin==0)
     random = np.copy(gray)
     random[non_vessel_ind] = 255
-    cv2.imwrite('../data/vessels.jpg',vessels)
-    cv2.imwrite('../data/random.jpg',random)   #random intersects with vessels, needs fixing
-    
+
     #non_vessel_ind = (non_vessel_ind_struc['y'],non_vessel_ind_struc['x'])
     #non_vessel_feature_mat = makeFeatureMatrix(img,non_vessel_ind,scales)
     #scipy.io.savemat('feature_mat.mat',
