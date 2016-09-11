@@ -45,8 +45,9 @@ def manualRemove(img):
             cv2.imshow('Manual White Pixel Removal',img)
     cv2.destroyAllWindows()
 
-grayscale = cv2.imread('../data/IR/tanaka1.bmp',0)
-img = np.load('../data/eigen/tanaka1.npy')
+filename = 'tanaka2'
+grayscale = cv2.imread('../data/IR/'+filename+'.bmp',0)
+img = np.load('../data/eigen/'+filename+'.npy')
 skel = skimage.morphology.skeletonize(img>0)
 #skel = np.random.rand(10,10)>0.6
 branch_len = 20
@@ -71,4 +72,4 @@ pruned = pruned * np.invert(single_points)
 #cv2.imwrite('../data/pruned_cleaned.jpg',np.invert(pruned==255)*grayscale)
 
 manualRemove(pruned)
-np.save('../data/vessels/tanaka1',pruned)
+np.save('../data/vessels/'+filename,pruned)
