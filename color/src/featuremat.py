@@ -16,7 +16,39 @@ class FeatureMatMaker(object):
         self.scales = scales
         self.vessel_sample_size = np.size(vessel_ind[0])
         
-    def getMat(self,is_vessel = True):
+    def getMat(self):
+        shape = (np.size(self.img,0),np.size(self.img,1),len(self.scales)*15+1)
+        feature_cube = np.zeros(shape)
+        feature_cube[:,:,0] = 1  # First element of each feature vector is 1
+        for i in range(len(self.scales)):
+            scaled = getScaledImg(self.img,self.scales[i])
+            first = scaled[:,:,0]   #first,second and third slice in axis 2
+            second = scaled[:,:,1]
+            third = scaled[:,:,2]
+            
+            x1 = cv2.Sobel(first,cv2.CV_64F,1,0)[:,:,np.newaxis]
+            y1 = cv2.Sobel(first,cv2.CV_64F,0,1)[:,:,np.newaxis]
+            xx1 = cv2.Sobel(first,cv2.CV_64F,2,0)[:,:,np.newaxis]
+            yy1 = cv2.Sobel(first,cv2.CV_64F,0,2)[:,:,np.newaxis]
+            xy1 = cv2.Sobel(first,cv2.CV_64F,1,1)[:,:,np.newaxis]
+            x2 = cv2.Sobel(second,cv2.CV_64F,1,0)[:,:,np.newaxis]
+            y2 = cv2.Sobel(second,cv2.CV_64F,0,1)[:,:,np.newaxis]
+            xx2 = cv2.Sobel(second,cv2.CV_64F,2,0)[:,:,np.newaxis]
+            yy2 = cv2.Sobel(second,cv2.CV_64F,0,2)[:,:,np.newaxis]
+            xy2 = cv2.Sobel(second,cv2.CV_64F,1,1)[:,:,np.newaxis]
+            x3 = cv2.Sobel(third,cv2.CV_64F,1,0)[:,:,np.newaxis]
+            y3 = cv2.Sobel(third,cv2.CV_64F,0,1)[:,:,np.newaxis]
+            xx3 = cv2.Sobel(third,cv2.CV_64F,2,0)[:,:,np.newaxis]
+            yy3 = cv2.Sobel(third,cv2.CV_64F,0,2)[:,:,np.newaxis]
+            xy3 = cv2.Sobel(third,cv2.CV_64F,1,1)[:,:,np.newaxis]
+            
+            feature_cube[:,:,15*i+1:15*i+15+1] = np.concatenate((x1,y1,xx1,yy1,xy1,
+                                                                 x2,y2,xx2,yy2,xy2,
+                                                                 x3,y3,xx3,yy3,xy3),axis=2)
+        feature_mat = np.reshape(feature_cube,(shape[0]*shape[1],shape[2]),'F')
+        return feature_mat
+        
+    def getTrainMat(self,is_vessel = True):
         if is_vessel:   # Extract vessel features
             num_scales = len(self.scales)
             v = [np.zeros((num_scales,15)) for _ in xrange(self.vessel_sample_size)]
@@ -112,3 +144,10 @@ class FeatureMatMaker(object):
         img = img.astype(np.float64)
         scaled_img = cv2.GaussianBlur(img,(size,size),sigma)
         return scaled_img
+        
+def getScaledImg(img,scale):
+    sigma = np.sqrt(scale)
+    size = int(np.ceil(sigma)*10+1)
+    img = img.astype(np.float64)
+    scaled_img = cv2.GaussianBlur(img,(size,size),sigma)
+    return scaled_img
