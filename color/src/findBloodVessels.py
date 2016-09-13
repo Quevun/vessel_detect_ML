@@ -15,10 +15,10 @@ def sigmoid(z):
     
 if __name__ == '__main__':
     scales = np.arange(3,100,5)
-    filename = 'tanaka2'
+    filename = 'quek1'
     img = cv2.imread('../data/color/'+filename+'.bmp')
-    feature_mat = featuremat.FeatureMatMaker(img,(1,1),scales).getMat()
-    mat_content = scipy.io.loadmat('../data/nn_param/'+filename+'.mat')
+    feature_mat = featuremat.FeatureMatMaker(img,scales).getMat()
+    mat_content = scipy.io.loadmat('../data/nn_param/param.mat')
     theta1 = mat_content['Theta1']
     theta2 = mat_content['Theta2']
     layer2_hypo = sigmoid(np.dot(feature_mat,theta1.T))

@@ -19,8 +19,8 @@ def hessEig(sobelxx,sobelxy,sobelyy):
     return eigval_array
     
 ###########################################################################
-
-img = cv2.imread('../data/IR/tanaka2.bmp',cv2.IMREAD_GRAYSCALE)
+filename = 'yamaki4'
+img = cv2.imread('../data/IR/'+filename+'.bmp',cv2.IMREAD_GRAYSCALE)
 small = cv2.pyrDown(img)
 small = cv2.GaussianBlur(small,(9,9),30)
 #small = cv2.pyrDown(small)
@@ -52,4 +52,4 @@ upscale = cv2.pyrUp(major.astype(np.uint8)*255)
 #upscale = cv2.pyrUp(upscale)
 
 detected_valleys = img * np.invert(upscale == 255)
-np.save('../data/eigen/tanaka2',(upscale==255).astype(np.uint8)*255)
+np.save('../data/eigen/'+filename,(upscale==255).astype(np.uint8)*255)

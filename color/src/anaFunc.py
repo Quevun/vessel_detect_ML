@@ -2,7 +2,7 @@
 """
 Created on Tue Aug 09 14:27:44 2016
 
-@author: keisoku
+@author: Quek Yu Yang
 """
 import cv2
 import matplotlib.pyplot as plt

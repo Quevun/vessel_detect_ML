@@ -45,7 +45,7 @@ def manualRemove(img):
             cv2.imshow('Manual White Pixel Removal',img)
     cv2.destroyAllWindows()
 
-filename = 'tanaka2'
+filename = 'yamaki4'
 grayscale = cv2.imread('../data/IR/'+filename+'.bmp',0)
 img = np.load('../data/eigen/'+filename+'.npy')
 skel = skimage.morphology.skeletonize(img>0)

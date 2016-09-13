@@ -7,7 +7,6 @@ Created on Thu Sep 08 11:11:37 2016
 import cv2
 import numpy as np
 import featuremat
-import makeTrainSet2
 
 """#test FeatureMat
 vessel_bin = np.load('../data/vessels/tanaka1.npy')
@@ -46,9 +45,10 @@ for i in range(len(scales)):
 """
 
 
-"""# test FeatureMat.getMat
-img = np.zeros((3,3,3),dtype=np.uint8)
-index = (np.array([0,1,2,2]),np.array([0,2,0,1]))
-feature_mat_maker = featuremat.FeatureMatMaker(img,index,3)
-no_intersect_index = feature_mat_maker.getMat(False)
-"""
+# test FeatureMat.getTraintMat
+scales = np.arange(3,100,5)
+img = cv2.imread('../data/color/tanaka2.bmp')
+vessel_bin = np.load('../data/vessels/tanaka2.npy')
+vessel_ind = np.nonzero(vessel_bin)
+featuremat_maker = featuremat.FeatureMatMaker(img,scales)
+vessel_feature,non_vessel_feature = featuremat_maker.getTrainMat(vessel_ind)
