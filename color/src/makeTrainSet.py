@@ -13,8 +13,8 @@ import os
 
 if __name__ == "__main__":
     scales = np.arange(3,100,5)
-    vessel_feature_mat = np.array([]).reshape(0,300)
-    non_vessel_feature_mat = np.array([]).reshape(0,300)
+    vessel_feature_mat = np.array([]).reshape(0,360)
+    non_vessel_feature_mat = np.array([]).reshape(0,360)
     
     for filename in os.listdir('../data/vessels'):
         vessel_bin = np.load('../data/vessels/'+filename)
@@ -37,6 +37,6 @@ if __name__ == "__main__":
     non_vessel_feature_mat = feature_mat_maker.getTrainMat(is_vessel=False)
     """
     
-    scipy.io.savemat('../data/feature_mat/feature.mat',
+    scipy.io.savemat('../data/feature_mat/feature2.mat',
                      dict(vessel_feature_mat=vessel_feature_mat,
                           non_vessel_feature_mat=non_vessel_feature_mat))

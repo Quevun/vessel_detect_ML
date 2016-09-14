@@ -1,10 +1,10 @@
 clear ; close all; clc
-input_layer_size  = 300; 
+input_layer_size  = 360; 
 hidden_layer_size = 50;
 num_labels = 2; 
 
 fprintf('Loading Data ...\n')
-load('../data/feature_mat/feature.mat');
+load('../data/feature_mat/feature2.mat');
 feature_mat = [vessel_feature_mat; non_vessel_feature_mat];
 y = [ones(size(vessel_feature_mat,1),1)*2; ones(size(non_vessel_feature_mat,1),1)];
 m = size(feature_mat, 1);
@@ -36,4 +36,4 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 pred = predict(Theta1, Theta2, feature_mat);
 fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == y)) * 100);
-save -6 ../data/nn_param/param.mat Theta1 Theta2
+save -6 ../data/nn_param/param2.mat Theta1 Theta2

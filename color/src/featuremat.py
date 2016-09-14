@@ -6,6 +6,8 @@ Created on Thu Sep 08 09:46:31 2016
 """
 import numpy as np
 import cv2
+import psutil
+import sys
 
 class FeatureMatMaker(object):
     def __init__(self,img,scales):
@@ -13,11 +15,11 @@ class FeatureMatMaker(object):
         assert img.dtype == 'uint8'
         self.img = img
         self.scales = scales
+        self.num_features = 18
         
     def getMat(self):
-        shape = (np.size(self.img,0),np.size(self.img,1),len(self.scales)*15+1)
+        shape = (np.size(self.img,0),np.size(self.img,1),len(self.scales)*18+1)
         feature_cube = np.zeros(shape)
-        feature_cube[:,:,0] = 1  # First element of each feature vector is 1
         for i in range(len(self.scales)):
             scaled = getScaledImg(self.img,self.scales[i])
             first = scaled[:,:,0]   #first,second and third slice in axis 2
@@ -40,10 +42,17 @@ class FeatureMatMaker(object):
             yy3 = cv2.Sobel(third,cv2.CV_64F,0,2)[:,:,np.newaxis]
             xy3 = cv2.Sobel(third,cv2.CV_64F,1,1)[:,:,np.newaxis]
             
-            feature_cube[:,:,15*i+1:15*i+15+1] = np.concatenate((x1,y1,xx1,yy1,xy1,
-                                                                 x2,y2,xx2,yy2,xy2,
-                                                                 x3,y3,xx3,yy3,xy3),axis=2)
+            first = first[:,:,np.newaxis]
+            second = second[:,:,np.newaxis]
+            third = third[:,:,np.newaxis]
+            feature_cube[:,:,18*i+1:18*i+18+1] = np.concatenate((first,x1,y1,xx1,yy1,xy1,
+                                                                 second,x2,y2,xx2,yy2,xy2,
+                                                                 third,x3,y3,xx3,yy3,xy3),
+                                                                 axis=2)
+            
         feature_mat = np.reshape(feature_cube,(shape[0]*shape[1],shape[2]),'F')
+        feature_mat = self.featureScale(feature_mat)
+        feature_mat[:,0] = 1  # First element of each feature vector is 1
         return feature_mat
             
     def getTrainMat(self,vessel_ind):
@@ -53,16 +62,17 @@ class FeatureMatMaker(object):
         self.vessel_ind = vessel_ind
         self.vessel_sample_size = self.vessel_ind[0].size
         num_scales = len(self.scales)
-        vessel_v = [np.zeros((num_scales,15)) for _ in xrange(self.vessel_sample_size)]
+        vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(self.vessel_sample_size)]
         
         non_vessel_ind = self.getRandInd()
         non_vessel_sample_size = non_vessel_ind[0].size
-        non_vessel_v = [np.zeros((num_scales,15)) for _ in xrange(non_vessel_sample_size)]
+        non_vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(non_vessel_sample_size)]
         #######################        
         
         for i in range(num_scales): 
-            scaled = self.getScaledImg(self.img,self.scales[i])
-            vessel_deriv_mat,non_vessel_deriv_mat = self.getDerivMat(scaled,self.vessel_ind,non_vessel_ind)
+            scaled = getScaledImg(self.img,self.scales[i])
+            vessel_deriv_mat,non_vessel_deriv_mat = self.getDerivMat(scaled,self.vessel_ind,
+                                                                     non_vessel_ind)
             for j in range(self.vessel_sample_size):
                 vessel_v[j][i,:] = vessel_deriv_mat[:,j]
             for j in range(non_vessel_sample_size):
@@ -70,13 +80,18 @@ class FeatureMatMaker(object):
                 
         #######################
         #   Feature matrix
-        vessel_feature_mat = np.zeros((self.vessel_sample_size,15*num_scales))
-        non_vessel_feature_mat = np.zeros((non_vessel_sample_size,15*num_scales))
+        vessel_feature_mat = np.zeros((self.vessel_sample_size,self.num_features*num_scales))
+        non_vessel_feature_mat = np.zeros((non_vessel_sample_size,self.num_features*num_scales))
         for i in range(len(vessel_v)):
             vessel_feature_mat[i,:] = vessel_v[i].flatten()
         for i in range(len(non_vessel_v)):
             non_vessel_feature_mat[i,:] = non_vessel_v[i].flatten()
         ######################
+            
+        scaled_features = self.featureScale(np.concatenate((vessel_feature_mat,
+                                                           non_vessel_feature_mat),axis=0))
+        vessel_feature_mat = scaled_features[:self.vessel_sample_size,:]
+        non_vessel_feature_mat = scaled_features[-non_vessel_sample_size:,:]
             
         return vessel_feature_mat,non_vessel_feature_mat
             
@@ -121,53 +136,59 @@ class FeatureMatMaker(object):
         yy3 = cv2.Sobel(third,cv2.CV_64F,0,2)
         xy3 = cv2.Sobel(third,cv2.CV_64F,1,1)
         
+        u1 = first[vessel_ind][np.newaxis,:]
         ux1 = x1[vessel_ind][np.newaxis,:] # Derivatives that correspond to coordinate of vessels
         uy1 = y1[vessel_ind][np.newaxis,:]
         uxx1 = xx1[vessel_ind][np.newaxis,:]
         uyy1 = yy1[vessel_ind][np.newaxis,:]
         uxy1 = xy1[vessel_ind][np.newaxis,:]
+        u2 = second[vessel_ind][np.newaxis,:]
         ux2 = x2[vessel_ind][np.newaxis,:]
         uy2 = y2[vessel_ind][np.newaxis,:]
         uxx2 = xx2[vessel_ind][np.newaxis,:]
         uyy2 = yy2[vessel_ind][np.newaxis,:]
         uxy2 = xy2[vessel_ind][np.newaxis,:]
+        u3 = third[vessel_ind][np.newaxis,:]
         ux3 = x3[vessel_ind][np.newaxis,:]
         uy3 = y3[vessel_ind][np.newaxis,:]
         uxx3 = xx3[vessel_ind][np.newaxis,:]
         uyy3 = yy3[vessel_ind][np.newaxis,:]
         uxy3 = xy3[vessel_ind][np.newaxis,:]
         
-        vessel_deriv_mat = np.concatenate((ux1,uy1,uxx1,uyy1,uxy1,
-                                           ux2,uy2,uxx2,uyy2,uxy2,
-                                           ux3,uy3,uxx3,uyy3,uxy3),axis=0)
-                                    
+        vessel_deriv_mat = np.concatenate((u1,ux1,uy1,uxx1,uyy1,uxy1,
+                                           u2,ux2,uy2,uxx2,uyy2,uxy2,
+                                           u3,ux3,uy3,uxx3,uyy3,uxy3),axis=0)
+        u1 = first[non_vessel_ind][np.newaxis,:]                            
         ux1 = x1[non_vessel_ind][np.newaxis,:] # Derivatives that correspond to coordinate of vessels
         uy1 = y1[non_vessel_ind][np.newaxis,:]
         uxx1 = xx1[non_vessel_ind][np.newaxis,:]
         uyy1 = yy1[non_vessel_ind][np.newaxis,:]
         uxy1 = xy1[non_vessel_ind][np.newaxis,:]
+        u2 = second[non_vessel_ind][np.newaxis,:]
         ux2 = x2[non_vessel_ind][np.newaxis,:]
         uy2 = y2[non_vessel_ind][np.newaxis,:]
         uxx2 = xx2[non_vessel_ind][np.newaxis,:]
         uyy2 = yy2[non_vessel_ind][np.newaxis,:]
         uxy2 = xy2[non_vessel_ind][np.newaxis,:]
+        u3 = third[non_vessel_ind][np.newaxis,:]
         ux3 = x3[non_vessel_ind][np.newaxis,:]
         uy3 = y3[non_vessel_ind][np.newaxis,:]
         uxx3 = xx3[non_vessel_ind][np.newaxis,:]
         uyy3 = yy3[non_vessel_ind][np.newaxis,:]
         uxy3 = xy3[non_vessel_ind][np.newaxis,:]
         
-        non_vessel_deriv_mat = np.concatenate((ux1,uy1,uxx1,uyy1,uxy1,
-                                               ux2,uy2,uxx2,uyy2,uxy2,
-                                               ux3,uy3,uxx3,uyy3,uxy3),axis=0)
+        non_vessel_deriv_mat = np.concatenate((u1,ux1,uy1,uxx1,uyy1,uxy1,
+                                               u2,ux2,uy2,uxx2,uyy2,uxy2,
+                                               u3,ux3,uy3,uxx3,uyy3,uxy3),axis=0)
         return vessel_deriv_mat,non_vessel_deriv_mat
         
-    def getScaledImg(self,img,scale):
-        sigma = np.sqrt(scale)
-        size = int(np.ceil(sigma)*10+1)
-        img = img.astype(np.float64)
-        scaled_img = cv2.GaussianBlur(img,(size,size),sigma)
-        return scaled_img
+    def featureScale(self,feature_mat):
+        feature_mean = feature_mat.mean(axis=0)
+        feature_std = np.std(feature_mat,axis=0)
+        feature_mean = np.repeat(feature_mean[np.newaxis,:],feature_mat.shape[0],axis=0)
+        feature_std = np.repeat(feature_std[np.newaxis,:],feature_mat.shape[0],axis=0)
+        scaled = (feature_mat-feature_mean)/feature_std
+        return scaled
         
 def getScaledImg(img,scale):
     sigma = np.sqrt(scale)
