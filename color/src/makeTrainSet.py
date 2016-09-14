@@ -25,18 +25,7 @@ if __name__ == "__main__":
         vessel_feature,non_vessel_feature = feature_mat_maker.getTrainMat(vessel_ind)
         vessel_feature_mat = np.concatenate((vessel_feature_mat,vessel_feature),0)
         non_vessel_feature_mat = np.concatenate((non_vessel_feature_mat,non_vessel_feature),0)
-        
-    """
-    filename = 'tanaka2'
-    vessel_bin = np.load('../data/vessels/'+filename+'.npy')
-    img = cv2.imread('../data/color/'+filename+'.bmp')
-    vessel_index = np.nonzero(vessel_bin)
-    
-    feature_mat_maker = featuremat.FeatureMatMaker(img,vessel_index,scales)
-    vessel_feature_mat = feature_mat_maker.getTrainMat()   
-    non_vessel_feature_mat = feature_mat_maker.getTrainMat(is_vessel=False)
-    """
-    
+
     scipy.io.savemat('../data/feature_mat/feature2.mat',
                      dict(vessel_feature_mat=vessel_feature_mat,
                           non_vessel_feature_mat=non_vessel_feature_mat))
