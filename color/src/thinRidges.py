@@ -46,7 +46,7 @@ def manualRemove(img):
     cv2.destroyAllWindows()
 
 filename = 'yamaki4'
-grayscale = cv2.imread('../data/IR/'+filename+'.bmp',0)
+#grayscale = cv2.imread('../data/IR/'+filename+'.bmp',0)
 img = np.load('../data/eigen/'+filename+'.npy')
 skel = skimage.morphology.skeletonize(img>0)
 #skel = np.random.rand(10,10)>0.6

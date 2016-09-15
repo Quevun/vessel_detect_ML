@@ -14,7 +14,7 @@ def sigmoid(z):
     return 1/(1+np.exp(-z))
     
 if __name__ == '__main__':
-    scales = np.arange(3,100,5)
+    scales = np.arange(3,50,5)
     filename = 'quek2'
     img = cv2.imread('../data/color/'+filename+'.bmp')
     img = cv2.pyrDown(img)

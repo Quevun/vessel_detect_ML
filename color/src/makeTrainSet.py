@@ -12,13 +12,15 @@ import featuremat
 import os
 
 if __name__ == "__main__":
-    scales = np.arange(3,100,5)
-    vessel_feature_mat = np.array([]).reshape(0,360)
-    non_vessel_feature_mat = np.array([]).reshape(0,360)
+    scales = np.arange(3,50,5)
+    num_features = len(scales)*18
+    vessel_feature_mat = np.array([]).reshape(0,num_features)
+    non_vessel_feature_mat = np.array([]).reshape(0,num_features)
     
     for filename in os.listdir('../data/vessels'):
         vessel_bin = np.load('../data/vessels/'+filename)
         img = cv2.imread('../data/color/'+filename.split('.')[0]+'.bmp')
+        img = cv2.pyrDown(img)
         vessel_ind = np.nonzero(vessel_bin)
     
         feature_mat_maker = featuremat.FeatureMatMaker(img,scales)

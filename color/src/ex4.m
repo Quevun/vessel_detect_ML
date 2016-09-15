@@ -1,11 +1,11 @@
 clear ; close all; clc
-input_layer_size  = 360; 
 hidden_layer_size = 50;
 num_labels = 2; 
 
-fprintf('Loading Data ...\n')
+fprintf('Loading Data ...\n');
 load('../data/feature_mat/feature2.mat');
 feature_mat = [vessel_feature_mat; non_vessel_feature_mat];
+input_layer_size = size(vessel_feature_mat,2);
 y = [ones(size(vessel_feature_mat,1),1)*2; ones(size(non_vessel_feature_mat,1),1)];
 m = size(feature_mat, 1);
 
@@ -17,7 +17,7 @@ initial_nn_params = [initial_Theta1(:) ; initial_Theta2(:)];
 
 fprintf('\nTraining Neural Network... \n')
 options = optimset('MaxIter', 100);
-lambda = 1;
+lambda = 0.1;
 % Create "short hand" for the cost function to be minimized
 costFunction = @(p) nnCostFunction(p, ...
                                    input_layer_size, ...
