@@ -45,11 +45,9 @@ def manualRemove(img):
             cv2.imshow('Manual White Pixel Removal',img)
     cv2.destroyAllWindows()
 
-filename = 'yamaki4'
-#grayscale = cv2.imread('../data/IR/'+filename+'.bmp',0)
+filename = 'tanaka3'
 img = np.load('../data/eigen/'+filename+'.npy')
 skel = skimage.morphology.skeletonize(img>0)
-#skel = np.random.rand(10,10)>0.6
 branch_len = 20
 pruned = skel.astype(np.uint8)*255
 struc_ele1 = np.array([[-1,0,0],[1,1,0],[-1,0,0]])
@@ -62,14 +60,18 @@ for i in range(branch_len):
     for struc_ele in struc_ele_tuple:
         end_points = end_points + morphology.hitOrMiss(pruned,struc_ele)
     pruned = pruned * np.invert(end_points)
-
-#cv2.imwrite('../data/pruned.jpg',np.invert(pruned==255)*grayscale)
-    
+ 
 struc_ele3 = np.array([[0,0,0],[0,1,0],[0,0,0]])
 single_points = morphology.hitOrMiss(pruned,struc_ele3)
 pruned = pruned * np.invert(single_points)
 
-#cv2.imwrite('../data/pruned_cleaned.jpg',np.invert(pruned==255)*grayscale)
+color = cv2.imread('../data/color/'+filename+'.bmp')
+color_small = cv2.pyrDown(color)
+cv2.imwrite('../data/color/small/'+filename+'.jpg',color_small)
+color_small[:,:,0] = color_small[:,:,0]*(pruned==0)
+color_small[:,:,1] = color_small[:,:,1]*(pruned==0)
+color_small[:,:,2] = color_small[:,:,2]*(pruned==0)
+cv2.imwrite('../data/color/small/'+filename+'_vessels.jpg',color_small)
 
 manualRemove(pruned)
 np.save('../data/vessels/'+filename,pruned)

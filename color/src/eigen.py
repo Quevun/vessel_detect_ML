@@ -19,7 +19,7 @@ def hessEig(sobelxx,sobelxy,sobelyy):
     return eigval_array
     
 ###########################################################################
-filename = 'yamaki4'
+filename = 'tanaka3'
 img = cv2.imread('../data/IR/'+filename+'.bmp',cv2.IMREAD_GRAYSCALE)
 small = cv2.pyrDown(img)
 small = cv2.GaussianBlur(small,(21,21),2)
@@ -38,9 +38,5 @@ major = np.amax(eigval_array,2) > maj_thres
 
 #upscale = cv2.pyrUp(major.astype(np.uint8)*255)
 
-major = major.astype(np.uint8)*255
-cv2.imshow('stuff',major)
-cv2.waitKey()
-cv2.destroyAllWindows()
 cv2.imwrite('../data/IR/small/'+filename+'.jpg',small)
-np.save('../data/eigen/'+filename,(major==255).astype(np.uint8)*255)
+np.save('../data/eigen/'+filename,major.astype(np.uint8)*255)
