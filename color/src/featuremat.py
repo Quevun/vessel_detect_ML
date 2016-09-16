@@ -15,10 +15,11 @@ class FeatureMatMaker(object):
         assert img.dtype == 'uint8'
         self.img = img
         self.scales = scales
-        self.num_features = 18
+        self.num_features = 30
         
     def getMat(self):
-        shape = (np.size(self.img,0),np.size(self.img,1),len(self.scales)*18+1)
+        nf = self.num_features   # Short for number of features
+        shape = (np.size(self.img,0),np.size(self.img,1),len(self.scales)*nf+1)
         feature_cube = np.zeros(shape)
         for i in range(len(self.scales)):
             scaled = getScaledImg(self.img,self.scales[i])
@@ -31,23 +32,37 @@ class FeatureMatMaker(object):
             xx1 = cv2.Sobel(first,cv2.CV_64F,2,0)[:,:,np.newaxis]
             yy1 = cv2.Sobel(first,cv2.CV_64F,0,2)[:,:,np.newaxis]
             xy1 = cv2.Sobel(first,cv2.CV_64F,1,1)[:,:,np.newaxis]
+            xxx1 = cv2.Sobel(first,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
+            xxy1 = cv2.Sobel(first,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
+            xyy1 = cv2.Sobel(first,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
+            yyy1 = cv2.Sobel(first,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
+            
             x2 = cv2.Sobel(second,cv2.CV_64F,1,0)[:,:,np.newaxis]
             y2 = cv2.Sobel(second,cv2.CV_64F,0,1)[:,:,np.newaxis]
             xx2 = cv2.Sobel(second,cv2.CV_64F,2,0)[:,:,np.newaxis]
             yy2 = cv2.Sobel(second,cv2.CV_64F,0,2)[:,:,np.newaxis]
             xy2 = cv2.Sobel(second,cv2.CV_64F,1,1)[:,:,np.newaxis]
+            xxx2 = cv2.Sobel(second,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
+            xxy2 = cv2.Sobel(second,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
+            xyy2 = cv2.Sobel(second,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
+            yyy2 = cv2.Sobel(second,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
+            
             x3 = cv2.Sobel(third,cv2.CV_64F,1,0)[:,:,np.newaxis]
             y3 = cv2.Sobel(third,cv2.CV_64F,0,1)[:,:,np.newaxis]
             xx3 = cv2.Sobel(third,cv2.CV_64F,2,0)[:,:,np.newaxis]
             yy3 = cv2.Sobel(third,cv2.CV_64F,0,2)[:,:,np.newaxis]
             xy3 = cv2.Sobel(third,cv2.CV_64F,1,1)[:,:,np.newaxis]
+            xxx3 = cv2.Sobel(third,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
+            xxy3 = cv2.Sobel(third,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
+            xyy3 = cv2.Sobel(third,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
+            yyy3 = cv2.Sobel(third,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
             
             first = first[:,:,np.newaxis]
             second = second[:,:,np.newaxis]
             third = third[:,:,np.newaxis]
-            feature_cube[:,:,18*i+1:18*i+18+1] = np.concatenate((first,x1,y1,xx1,yy1,xy1,
-                                                                 second,x2,y2,xx2,yy2,xy2,
-                                                                 third,x3,y3,xx3,yy3,xy3),
+            feature_cube[:,:,nf*i+1:nf*i+nf+1] = np.concatenate((first,x1,y1,xx1,yy1,xy1,xxx1,xxy1,xyy1,yyy1,
+                                                                 second,x2,y2,xx2,yy2,xy2,xxx2,xxy2,xyy2,yyy2,
+                                                                 third,x3,y3,xx3,yy3,xy3,xxx3,xxy3,xyy3,yyy3,),
                                                                  axis=2)
             
         feature_mat = np.reshape(feature_cube,(shape[0]*shape[1],shape[2]),'F')
@@ -125,16 +140,30 @@ class FeatureMatMaker(object):
         xx1 = cv2.Sobel(first,cv2.CV_64F,2,0)
         yy1 = cv2.Sobel(first,cv2.CV_64F,0,2)
         xy1 = cv2.Sobel(first,cv2.CV_64F,1,1)
+        xxx1 = cv2.Sobel(first,cv2.CV_64F,3,0,ksize=5)
+        xxy1 = cv2.Sobel(first,cv2.CV_64F,2,1,ksize=5)
+        xyy1 = cv2.Sobel(first,cv2.CV_64F,1,2,ksize=5)
+        yyy1 = cv2.Sobel(first,cv2.CV_64F,0,3,ksize=5)
+        
         x2 = cv2.Sobel(second,cv2.CV_64F,1,0)
         y2 = cv2.Sobel(second,cv2.CV_64F,0,1)
         xx2 = cv2.Sobel(second,cv2.CV_64F,2,0)
         yy2 = cv2.Sobel(second,cv2.CV_64F,0,2)
         xy2 = cv2.Sobel(second,cv2.CV_64F,1,1)
+        xxx2 = cv2.Sobel(second,cv2.CV_64F,3,0,ksize=5)
+        xxy2 = cv2.Sobel(second,cv2.CV_64F,2,1,ksize=5)
+        xyy2 = cv2.Sobel(second,cv2.CV_64F,1,2,ksize=5)
+        yyy2 = cv2.Sobel(second,cv2.CV_64F,0,3,ksize=5)
+        
         x3 = cv2.Sobel(third,cv2.CV_64F,1,0)
         y3 = cv2.Sobel(third,cv2.CV_64F,0,1)
         xx3 = cv2.Sobel(third,cv2.CV_64F,2,0)
         yy3 = cv2.Sobel(third,cv2.CV_64F,0,2)
         xy3 = cv2.Sobel(third,cv2.CV_64F,1,1)
+        xxx3 = cv2.Sobel(third,cv2.CV_64F,3,0,ksize=5)
+        xxy3 = cv2.Sobel(third,cv2.CV_64F,2,1,ksize=5)
+        xyy3 = cv2.Sobel(third,cv2.CV_64F,1,2,ksize=5)
+        yyy3 = cv2.Sobel(third,cv2.CV_64F,0,3,ksize=5)
         
         u1 = first[vessel_ind][np.newaxis,:]
         ux1 = x1[vessel_ind][np.newaxis,:] # Derivatives that correspond to coordinate of vessels
@@ -142,44 +171,72 @@ class FeatureMatMaker(object):
         uxx1 = xx1[vessel_ind][np.newaxis,:]
         uyy1 = yy1[vessel_ind][np.newaxis,:]
         uxy1 = xy1[vessel_ind][np.newaxis,:]
+        uxxx1 = xxx1[vessel_ind][np.newaxis,:]
+        uxxy1 = xxy1[vessel_ind][np.newaxis,:]
+        uxyy1 = xyy1[vessel_ind][np.newaxis,:]
+        uyyy1 = yyy1[vessel_ind][np.newaxis,:]
+        
         u2 = second[vessel_ind][np.newaxis,:]
         ux2 = x2[vessel_ind][np.newaxis,:]
         uy2 = y2[vessel_ind][np.newaxis,:]
         uxx2 = xx2[vessel_ind][np.newaxis,:]
         uyy2 = yy2[vessel_ind][np.newaxis,:]
         uxy2 = xy2[vessel_ind][np.newaxis,:]
+        uxxx2 = xxx2[vessel_ind][np.newaxis,:]
+        uxxy2 = xxy2[vessel_ind][np.newaxis,:]
+        uxyy2 = xyy2[vessel_ind][np.newaxis,:]
+        uyyy2 = yyy2[vessel_ind][np.newaxis,:]
+        
         u3 = third[vessel_ind][np.newaxis,:]
         ux3 = x3[vessel_ind][np.newaxis,:]
         uy3 = y3[vessel_ind][np.newaxis,:]
         uxx3 = xx3[vessel_ind][np.newaxis,:]
         uyy3 = yy3[vessel_ind][np.newaxis,:]
         uxy3 = xy3[vessel_ind][np.newaxis,:]
-        
-        vessel_deriv_mat = np.concatenate((u1,ux1,uy1,uxx1,uyy1,uxy1,
-                                           u2,ux2,uy2,uxx2,uyy2,uxy2,
-                                           u3,ux3,uy3,uxx3,uyy3,uxy3),axis=0)
-        u1 = first[non_vessel_ind][np.newaxis,:]                            
+        uxxx3 = xxx3[vessel_ind][np.newaxis,:]
+        uxxy3 = xxy3[vessel_ind][np.newaxis,:]
+        uxyy3 = xyy3[vessel_ind][np.newaxis,:]
+        uyyy3 = yyy3[vessel_ind][np.newaxis,:]
+
+        vessel_deriv_mat = np.concatenate((u1,ux1,uy1,uxx1,uyy1,uxy1,uxxx1,uxxy1,uxyy1,uyyy1,
+                                           u2,ux2,uy2,uxx2,uyy2,uxy2,uxxx2,uxxy2,uxyy2,uyyy2,
+                                           u3,ux3,uy3,uxx3,uyy3,uxy3,uxxx3,uxxy3,uxyy3,uyyy3),axis=0)
+        u1 = first[non_vessel_ind][np.newaxis,:]
         ux1 = x1[non_vessel_ind][np.newaxis,:] # Derivatives that correspond to coordinate of vessels
         uy1 = y1[non_vessel_ind][np.newaxis,:]
         uxx1 = xx1[non_vessel_ind][np.newaxis,:]
         uyy1 = yy1[non_vessel_ind][np.newaxis,:]
         uxy1 = xy1[non_vessel_ind][np.newaxis,:]
+        uxxx1 = xxx1[non_vessel_ind][np.newaxis,:]
+        uxxy1 = xxy1[non_vessel_ind][np.newaxis,:]
+        uxyy1 = xyy1[non_vessel_ind][np.newaxis,:]
+        uyyy1 = yyy1[non_vessel_ind][np.newaxis,:]
+        
         u2 = second[non_vessel_ind][np.newaxis,:]
         ux2 = x2[non_vessel_ind][np.newaxis,:]
         uy2 = y2[non_vessel_ind][np.newaxis,:]
         uxx2 = xx2[non_vessel_ind][np.newaxis,:]
         uyy2 = yy2[non_vessel_ind][np.newaxis,:]
         uxy2 = xy2[non_vessel_ind][np.newaxis,:]
+        uxxx2 = xxx2[non_vessel_ind][np.newaxis,:]
+        uxxy2 = xxy2[non_vessel_ind][np.newaxis,:]
+        uxyy2 = xyy2[non_vessel_ind][np.newaxis,:]
+        uyyy2 = yyy2[non_vessel_ind][np.newaxis,:]
+        
         u3 = third[non_vessel_ind][np.newaxis,:]
         ux3 = x3[non_vessel_ind][np.newaxis,:]
         uy3 = y3[non_vessel_ind][np.newaxis,:]
         uxx3 = xx3[non_vessel_ind][np.newaxis,:]
         uyy3 = yy3[non_vessel_ind][np.newaxis,:]
         uxy3 = xy3[non_vessel_ind][np.newaxis,:]
+        uxxx3 = xxx3[non_vessel_ind][np.newaxis,:]
+        uxxy3 = xxy3[non_vessel_ind][np.newaxis,:]
+        uxyy3 = xyy3[non_vessel_ind][np.newaxis,:]
+        uyyy3 = yyy3[non_vessel_ind][np.newaxis,:]
         
-        non_vessel_deriv_mat = np.concatenate((u1,ux1,uy1,uxx1,uyy1,uxy1,
-                                               u2,ux2,uy2,uxx2,uyy2,uxy2,
-                                               u3,ux3,uy3,uxx3,uyy3,uxy3),axis=0)
+        non_vessel_deriv_mat = np.concatenate((u1,ux1,uy1,uxx1,uyy1,uxy1,uxxx1,uxxy1,uxyy1,uyyy1,
+                                               u2,ux2,uy2,uxx2,uyy2,uxy2,uxxx2,uxxy2,uxyy2,uyyy2,
+                                               u3,ux3,uy3,uxx3,uyy3,uxy3,uxxx3,uxxy3,uxyy3,uyyy3),axis=0)
         return vessel_deriv_mat,non_vessel_deriv_mat
         
     def featureScale(self,feature_mat):

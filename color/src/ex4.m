@@ -1,5 +1,5 @@
 clear ; close all; clc
-hidden_layer_size = 50;
+hidden_layer_size = 25;
 num_labels = 2; 
 
 fprintf('Loading Data ...\n');
@@ -17,7 +17,7 @@ initial_nn_params = [initial_Theta1(:) ; initial_Theta2(:)];
 
 fprintf('\nTraining Neural Network... \n')
 options = optimset('MaxIter', 100);
-lambda = 0.1;
+lambda = 10;
 % Create "short hand" for the cost function to be minimized
 costFunction = @(p) nnCostFunction(p, ...
                                    input_layer_size, ...

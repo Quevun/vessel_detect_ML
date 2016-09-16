@@ -15,7 +15,7 @@ def sigmoid(z):
     
 if __name__ == '__main__':
     scales = np.arange(3,50,5)
-    filename = 'quek2'
+    filename = 'yamaki3'
     img = cv2.imread('../data/color/'+filename+'.bmp')
     img = cv2.pyrDown(img)
     feature_mat = featuremat.FeatureMatMaker(img,scales).getMat()
