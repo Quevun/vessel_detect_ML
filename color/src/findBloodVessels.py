@@ -13,13 +13,17 @@ import featuremat
 def sigmoid(z):
     return 1/(1+np.exp(-z))
     
+def segmentSkin(hsv):
+    skin_bin = ((hsv[:,:,0] >150) + (hsv[:,:,0] < 20))*((hsv[:,:,1]>0)*(hsv[:,:,1]<170))
+    return skin_bin
+    
 if __name__ == '__main__':
     scales = np.arange(3,50,5)
-    filename = 'yamaki3'
+    filename = 'tanaka3'
     img = cv2.imread('../data/color/'+filename+'.bmp')
     img = cv2.pyrDown(img)
     feature_mat = featuremat.FeatureMatMaker(img,scales).getMat()
-    mat_content = scipy.io.loadmat('../data/nn_param/param2.mat')
+    mat_content = scipy.io.loadmat('../data/nn_param/param.mat')
     theta1 = mat_content['Theta1']
     theta2 = mat_content['Theta2']
     layer2_hypo = sigmoid(np.dot(feature_mat,theta1.T))
@@ -30,4 +34,9 @@ if __name__ == '__main__':
     hypo = sigmoid(np.dot(layer2_hypo,theta2.T))
     predict = np.reshape(np.argmax(hypo,1),(img.shape[0],img.shape[1]),'F')
     
-    cv2.imwrite('../data/findBloodVessels_results/'+filename+'.jpg',predict.astype(np.uint8)*255)
+    hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+    skin_bin = segmentSkin(hsv)
+    cv2.imshow('stuff',skin_bin.astype(np.uint8)*255)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+    cv2.imwrite('../data/findBloodVessels_results/more_data/'+filename+'.jpg',predict.astype(np.uint8)*255*skin_bin)

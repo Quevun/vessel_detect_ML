@@ -116,8 +116,8 @@ class FeatureMatMaker(object):
         vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
         vessel_ind_struc = vessel_ind_struc.view([('y',np.int64),
                                                   ('x',np.int64)]) # structured array with (y,x) elements
-        y = np.random.randint(self.img.shape[0],size=self.vessel_sample_size)[np.newaxis,:]
-        x = np.random.randint(self.img.shape[1],size=self.vessel_sample_size)[np.newaxis,:]
+        y = np.random.randint(self.img.shape[0],size=self.img.shape[0]*self.img.shape[1]/16)[np.newaxis,:]
+        x = np.random.randint(self.img.shape[1],size=self.img.shape[0]*self.img.shape[1]/16)[np.newaxis,:]
         non_vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
         non_vessel_ind_struc = non_vessel_ind_struc.astype(np.int64)
         non_vessel_ind_struc = non_vessel_ind_struc.view([('y',np.int64),

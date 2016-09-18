@@ -28,6 +28,6 @@ if __name__ == "__main__":
         vessel_feature_mat = np.concatenate((vessel_feature_mat,vessel_feature),0)
         non_vessel_feature_mat = np.concatenate((non_vessel_feature_mat,non_vessel_feature),0)
 
-    scipy.io.savemat('../data/feature_mat/feature2.mat',
+    scipy.io.savemat('../data/feature_mat/feature.mat',
                      dict(vessel_feature_mat=vessel_feature_mat,
                           non_vessel_feature_mat=non_vessel_feature_mat))

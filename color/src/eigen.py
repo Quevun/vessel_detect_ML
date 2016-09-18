@@ -2,13 +2,12 @@
 """
 Created on Thu Jun 23 11:15:11 2016
 
-@author: queky
+@author: Quek Yu Yang
 """
 
 import cv2
 import numpy as np
 
-############################################################################
 def hessEig(sobelxx,sobelxy,sobelyy):
     eigval_array = np.zeros((np.size(sobelxx,0),np.size(sobelxx,1),2))   # initialization
     for i in range(np.size(sobelxx,0)):   # row index
@@ -18,25 +17,19 @@ def hessEig(sobelxx,sobelxy,sobelyy):
             eigval_array[i,j,:] = eigval
     return eigval_array
     
-###########################################################################
-filename = 'tanaka3'
-img = cv2.imread('../data/IR/'+filename+'.bmp',cv2.IMREAD_GRAYSCALE)
-small = cv2.pyrDown(img)
-small = cv2.GaussianBlur(small,(21,21),2)
-
-sobelxx = cv2.Sobel(small,cv2.CV_64F,2,0,ksize=9)
-sobelyy = cv2.Sobel(small,cv2.CV_64F,0,2,ksize=9)
-sobelxy = cv2.Sobel(small,cv2.CV_64F,1,1,ksize=9)
-
-maj_thres = 2000
-#min_thres = 1
-eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
-major = np.amax(eigval_array,2) > maj_thres
-#minor = abs(np.amin(eigval_array,2)) < min_thres
-#bin = np.logical_and(major,minor)
-#bin = bin.astype(np.uint8) * 255
-
-#upscale = cv2.pyrUp(major.astype(np.uint8)*255)
-
-cv2.imwrite('../data/IR/small/'+filename+'.jpg',small)
-np.save('../data/eigen/'+filename,major.astype(np.uint8)*255)
+if __name__ == '__main__':
+    filename = 'yamaki4'
+    img = cv2.imread('../data/IR/'+filename+'.bmp',cv2.IMREAD_GRAYSCALE)
+    small = cv2.pyrDown(img)
+    cv2.imwrite('../data/IR/small/'+filename+'.jpg',small)
+    small = cv2.GaussianBlur(small,(21,21),2)
+    
+    sobelxx = cv2.Sobel(small,cv2.CV_64F,2,0,ksize=9)
+    sobelyy = cv2.Sobel(small,cv2.CV_64F,0,2,ksize=9)
+    sobelxy = cv2.Sobel(small,cv2.CV_64F,1,1,ksize=9)
+    
+    maj_thres = 2000
+    eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
+    major = np.amax(eigval_array,2) > maj_thres
+    
+    np.save('../data/eigen/'+filename,major.astype(np.uint8)*255)
