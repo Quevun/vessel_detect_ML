@@ -18,10 +18,14 @@ def hessEig(sobelxx,sobelxy,sobelyy):
     return eigval_array
     
 if __name__ == '__main__':
-    filename = 'yamaki4'
-    img = cv2.imread('../data/IR/'+filename+'.bmp',cv2.IMREAD_GRAYSCALE)
+    filename = 'tanaka1'
+    img = cv2.imread('../data/IR/'+filename+'.bmp',0)
     small = cv2.pyrDown(img)
     cv2.imwrite('../data/IR/small/'+filename+'.jpg',small)
+    
+    img = cv2.imread('../data/color/'+filename+'.bmp')
+    img = img[:,:,2]
+    small = cv2.pyrDown(img)    
     small = cv2.GaussianBlur(small,(21,21),2)
     
     sobelxx = cv2.Sobel(small,cv2.CV_64F,2,0,ksize=9)
@@ -32,4 +36,4 @@ if __name__ == '__main__':
     eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
     major = np.amax(eigval_array,2) > maj_thres
     
-    np.save('../data/eigen/'+filename,major.astype(np.uint8)*255)
+    np.save('../data/eigen/red/'+filename,major.astype(np.uint8)*255)
