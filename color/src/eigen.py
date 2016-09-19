@@ -18,10 +18,10 @@ def hessEig(sobelxx,sobelxy,sobelyy):
     return eigval_array
     
 if __name__ == '__main__':
-    filename = 'tanaka1'
-    img = cv2.imread('../data/IR/'+filename+'.bmp',0)
-    small = cv2.pyrDown(img)
-    cv2.imwrite('../data/IR/small/'+filename+'.jpg',small)
+    filename = 'yamaki2'
+    #img = cv2.imread('../data/IR/'+filename+'.bmp',0)
+    #small = cv2.pyrDown(img)
+    #cv2.imwrite('../data/IR/small/'+filename+'.jpg',small)
     
     img = cv2.imread('../data/color/'+filename+'.bmp')
     img = img[:,:,2]
