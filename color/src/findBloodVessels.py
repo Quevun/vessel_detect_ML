@@ -8,7 +8,7 @@ Created on Sat Sep 03 15:58:10 2016
 import scipy.io
 import numpy as np
 import cv2
-import featurematHSV
+import featuremat
 
 def sigmoid(z):
     return 1/(1+np.exp(-z))
@@ -19,11 +19,11 @@ def segmentSkin(hsv):
     
 if __name__ == '__main__':
     scales = np.arange(3,50,5)
-    filename = 'yamaki4'
+    filename = 'tani4'
     img = cv2.imread('../data/color/'+filename+'.bmp')
     img = cv2.pyrDown(img)
-    feature_mat = featurematHSV.FeatureMatMaker(img,scales).getMat()
-    mat_content = scipy.io.loadmat('../data/nn_param/param_data_from_red_HS.mat')
+    feature_mat = featuremat.FeatureMatMaker(img,scales).getMat()
+    mat_content = scipy.io.loadmat('../data/nn_param/deriv_order2.mat')
     theta1 = mat_content['Theta1']
     theta2 = mat_content['Theta2']
     layer2_hypo = sigmoid(np.dot(feature_mat,theta1.T))
@@ -39,4 +39,4 @@ if __name__ == '__main__':
     #cv2.imshow('stuff',skin_bin.astype(np.uint8)*255)
     #cv2.waitKey()
     #cv2.destroyAllWindows()
-    cv2.imwrite('../data/findBloodVessels_results/data_from_red_HS/'+filename+'.jpg',predict.astype(np.uint8)*255)
+    cv2.imwrite('../data/findBloodVessels_results/deriv_order2/'+filename+'.jpg',predict.astype(np.uint8)*255)
