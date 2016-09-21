@@ -1,18 +1,20 @@
-function [J grad] = nnCostFunction(nn_params, ...
-                                   input_layer_size, ...
-                                   hidden_layer_size, ...
-                                   num_labels, ...
-                                   X, y, lambda)
+function [J grad] = nnCostFuncMultiFiles(nn_params, ...
+                                         input_layer_size, ...
+                                         hidden_layer_size, ...
+                                         num_labels, ...
+                                         lambda)
 
 Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
                  hidden_layer_size, (input_layer_size + 1));
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
                  num_labels, (hidden_layer_size + 1));
-                 
+delta1 = zeros(size(Theta1));
+delta2 = zeros(size(Theta2));
+
 files = dir('../data/feature_mat/more_non_vessels2/*.mat');
-for file = files
-  load(strcat('../data/feature_mat/more_non_vessels2/',file.name))
-  X = [vessel_feature_mat; non_vessel_feature_mat]
+for file = files'
+  load(strcat('../data/feature_mat/more_non_vessels2/',file.name));
+  X = [vessel_feature_mat; non_vessel_feature_mat];
   y = [ones(size(vessel_feature_mat,1),1)*2; ones(size(non_vessel_feature_mat,1),1)];
   m = size(X, 1);
   
@@ -35,13 +37,11 @@ for file = files
   error3 = hypo - yvect';
   error2 = (Theta2(:,2:end)'*error3).*sigmoidGradient(z2);
 
-delta1 = zeros(size(Theta1));
-delta2 = zeros(size(Theta2));
-for i = 1:m
-    delta1 = delta1 + error2(:,i) * X_bias(i,:);
-    delta2 = delta2 + error3(:,i) * a2_bias(:,i)';
+ for i = 1:m
+     delta1 = delta1 + error2(:,i) * X_bias(i,:);
+     delta2 = delta2 + error3(:,i) * a2_bias(:,i)';
+ end
 end
-
 
 Theta1_regTerm = Theta1;
 Theta1_regTerm(:,1) = zeros(hidden_layer_size,1);
