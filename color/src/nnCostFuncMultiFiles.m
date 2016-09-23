@@ -1,4 +1,4 @@
-function [J grad] = nnCostFuncMultiFiles(nn_params, ...
+function [J_sum grad] = nnCostFuncMultiFiles(nn_params, ...
                                          input_layer_size, ...
                                          hidden_layer_size, ...
                                          num_labels, ...
@@ -10,6 +10,7 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
                  num_labels, (hidden_layer_size + 1));
 delta1 = zeros(size(Theta1));
 delta2 = zeros(size(Theta2));
+J_sum = 0;
 
 files = dir('../data/feature_mat/more_non_vessels2/*.mat');
 for file = files'
@@ -23,24 +24,21 @@ for file = files'
   a2 = sigmoid(z2); %second activation units
   a2_bias = [ones(1,m); a2];
   hypo = sigmoid(Theta2*a2_bias);
-
-  labels = repmat(1:num_labels,m,1); %duplicate rows of 1 to 10
-  yvect = zeros(m,num_labels);
-  for i = 1:m
-      yvect(i,:) = (labels(i,:) == y(i)); % labels don't need to be so big %%%%%%%%%%%%%%%%%%%%%%%
-  end
+  
+  yvect = repmat(1:num_labels,m,1);
+  yvect(:,1) = yvect(:,1) == y;
+  yvect(:,2) = yvect(:,2) == y;
 
   JMatrix = -yvect'.*log(hypo) - (1-yvect').*log(1-hypo);
   JregTerm = (sum(sum(Theta1(:,2:end).^2)) + sum(sum(Theta2(:,2:end).^2))) * lambda / (2*m);
   J = sum(sum(JMatrix)) / m + JregTerm;
+  J_sum += J;
 
   error3 = hypo - yvect';
   error2 = (Theta2(:,2:end)'*error3).*sigmoidGradient(z2);
 
- for i = 1:m
-     delta1 = delta1 + error2(:,i) * X_bias(i,:);
-     delta2 = delta2 + error3(:,i) * a2_bias(:,i)';
- end
+  delta1 = delta1 + error2 * X_bias;
+  delta2 = delta2 + error3 * a2_bias';
 end
 
 Theta1_regTerm = Theta1;

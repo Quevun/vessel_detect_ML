@@ -9,7 +9,7 @@ initial_Theta2 = randInitializeWeights(hidden_layer_size, num_labels);
 initial_nn_params = [initial_Theta1(:) ; initial_Theta2(:)];
 
 fprintf('\nTraining Neural Network... \n')
-options = optimset('MaxIter', 100);
+options = optimset('MaxIter', 40);
 lambda = 1;
 % Create "short hand" for the cost function to be minimized
 costFunction = @(p) nnCostFuncMultiFiles(p, ...
