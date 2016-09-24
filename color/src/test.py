@@ -45,10 +45,17 @@ for i in range(len(scales)):
 """
 
 
-# test FeatureMat.getTraintMat
+"""# test FeatureMat.getTraintMat
 scales = np.arange(3,100,5)
 img = cv2.imread('../data/color/tanaka2.bmp')
 vessel_bin = np.load('../data/vessels/tanaka2.npy')
 vessel_ind = np.nonzero(vessel_bin)
 featuremat_maker = featuremat.FeatureMatMaker(img,scales)
 vessel_feature,non_vessel_feature = featuremat_maker.getTrainMat(vessel_ind)
+"""
+
+# gradient direction image
+img = cv2.imread('../data/IR/quek1.bmp',0)
+sobelx = cv2.Sobel(img,cv2.CV_64F,1,0)
+sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
+grad = np.arctan(sobely/sobelx)
