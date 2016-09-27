@@ -3,7 +3,7 @@ hidden_layer_size = 25;
 num_labels = 2; 
 
 fprintf('Loading Data ...\n');
-load('../data/feature_mat/feature2.mat');
+load('../data/feature_mat/data_from_red/batch1.mat');
 feature_mat = [vessel_feature_mat; non_vessel_feature_mat];
 input_layer_size = size(vessel_feature_mat,2);
 y = [ones(size(vessel_feature_mat,1),1)*2; ones(size(non_vessel_feature_mat,1),1)];
@@ -16,7 +16,7 @@ initial_Theta2 = randInitializeWeights(hidden_layer_size, num_labels);
 initial_nn_params = [initial_Theta1(:) ; initial_Theta2(:)];
 
 fprintf('\nTraining Neural Network... \n')
-options = optimset('MaxIter', 20);
+options = optimset('MaxIter', 100);
 lambda = 1;
 % Create "short hand" for the cost function to be minimized
 costFunction = @(p) nnCostFunction(p, ...
@@ -36,4 +36,4 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 pred = predict(Theta1, Theta2, feature_mat);
 fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == y)) * 100);
-save -6 ../data/nn_param/test.mat Theta1 Theta2
+save -6 ../data/nn_param/data_from_red.mat Theta1 Theta2

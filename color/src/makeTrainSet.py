@@ -32,7 +32,7 @@ if __name__ == "__main__":
         
         sample_size = vessel_feature_mat.shape[0]+non_vessel_feature_mat.shape[0]
         if sample_size > threshold:    
-            scipy.io.savemat('../data/feature_mat/more_non_vessels2/batch'+str(i)+'.mat',
+            scipy.io.savemat('../data/feature_mat/data_from_red/batch'+str(i)+'.mat',
                              dict(vessel_feature_mat=vessel_feature_mat,
                                   non_vessel_feature_mat=non_vessel_feature_mat))
             i += 1
@@ -40,6 +40,6 @@ if __name__ == "__main__":
             non_vessel_feature_mat = np.array([]).reshape(0,num_features)
         
     if vessel_feature_mat.size != 0:
-        scipy.io.savemat('../data/feature_mat/more_non_vessels2/batch'+str(i)+'.mat',
+        scipy.io.savemat('../data/feature_mat/data_from_red/batch'+str(i)+'.mat',
                              dict(vessel_feature_mat=vessel_feature_mat,
                                   non_vessel_feature_mat=non_vessel_feature_mat))
