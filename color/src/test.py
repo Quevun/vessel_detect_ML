@@ -81,3 +81,31 @@ theta_p = theta_p - np.amin(theta_p)
 theta_p = (theta_p/np.amax(theta_p)*255).astype(np.uint8)
 theta_q = theta_q - np.amin(theta_q)
 theta_q = (theta_q/np.amax(theta_q)*255).astype(np.uint8)
+
+
+"""# test to see how image rotation works at small scale
+# results: rotating an image smoothes it somewhat, avoid multiple rotations
+img = (np.random.rand(3,3) * 255).astype(np.uint8)
+rot_mat = cv2.getRotationMatrix2D((1,1),30,1)
+img30 = cv2.warpAffine(img,rot_mat,(3,3),cv2.INTER_NEAREST)
+img60 = cv2.warpAffine(img30,rot_mat,(3,3),cv2.INTER_NEAREST)
+img90 = cv2.warpAffine(img60,rot_mat,(3,3),cv2.INTER_NEAREST)
+img120 = cv2.warpAffine(img90,rot_mat,(3,3),cv2.INTER_NEAREST)
+img150 = cv2.warpAffine(img120,rot_mat,(3,3),cv2.INTER_NEAREST)
+img180 = cv2.warpAffine(img150,rot_mat,(3,3),cv2.INTER_NEAREST)
+
+img = cv2.resize(img,(300,300),interpolation=cv2.INTER_NEAREST)
+img30 = cv2.resize(img30,(300,300),interpolation=cv2.INTER_NEAREST)
+img60 = cv2.resize(img60,(300,300),interpolation=cv2.INTER_NEAREST)
+img90 = cv2.resize(img90,(300,300),interpolation=cv2.INTER_NEAREST)
+img120 = cv2.resize(img120,(300,300),interpolation=cv2.INTER_NEAREST)
+img150 = cv2.resize(img150,(300,300),interpolation=cv2.INTER_NEAREST)
+img180 = cv2.resize(img180,(300,300),interpolation=cv2.INTER_NEAREST)
+cv2.imwrite('../data/junk/img.jpg',img)
+cv2.imwrite('../data/junk/img30.jpg',img30)
+cv2.imwrite('../data/junk/img60.jpg',img60)
+cv2.imwrite('../data/junk/img90.jpg',img90)
+cv2.imwrite('../data/junk/img120.jpg',img120)
+cv2.imwrite('../data/junk/img150.jpg',img150)
+cv2.imwrite('../data/junk/img180.jpg',img180)
+"""
