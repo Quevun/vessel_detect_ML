@@ -65,11 +65,11 @@ class FeatureMatMaker(object):
         self.vessel_sample_size = self.vessel_ind[0].size
         num_scales = len(self.scales)
         rot_angles = np.arange(10,180,10)
-        vessel_v = [np.zeros((num_scales*len(rot_angles),self.num_features)) for _ in xrange(self.vessel_sample_size)]
+        vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(self.vessel_sample_size*len(rot_angles))]
         
         non_vessel_ind = self.getRandInd()
         non_vessel_sample_size = non_vessel_ind[0].size
-        non_vessel_v = [np.zeros((num_scales*len(rot_angles),self.num_features)) for _ in xrange(non_vessel_sample_size)]
+        non_vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(non_vessel_sample_size*len(rot_angles))]
         #######################        
         
         for i in range(num_scales): 
@@ -193,14 +193,13 @@ class FeatureMatMaker(object):
                                                u3,ux3,uy3,uxx3,uyy3,uxy3,),axis=0)
         return vessel_deriv_mat,non_vessel_deriv_mat
         
-    def getRidgeOrient(self,img,xx,yy,xy):
-        img = img.astype(np.float64)
-        temp = (xx - yy)/np.sqrt((xx-yy)**2 + 4*xy**2)
-        sin_beta = np.sign(xy) * np.sqrt((1-temp)/2)
-        cos_beta = np.sqrt((1+temp)/2)
-        theta_p = np.arctan(-cos_beta/sin_beta)
-        theta_p = np.rad2deg(theta_p)
-        return theta_p
+    def rotateImgAndInd(self,img,vessel_ind,non_vessel_ind):
+        diag_len = round(np.sqrt(img.shape[0]**2 + img.shape[1]**2))
+        x_padding = diag_len - img.shape[1]
+        y_padding = diag_len - img.shape[0]
+        padded_img = np.zeros((img.shape[0]+y_padding+5,img.shape[1]+x_padding+5,img.shape[2]))
+        x_mid = round(padded_img[1]/2)
+        y_mid = round(padded_img[0]/2)
         
     def featureScale(self,feature_mat):
         feature_mean = feature_mat.mean(axis=0)
