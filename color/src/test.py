@@ -61,7 +61,7 @@ sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
 grad = np.arctan(sobely/sobelx)
 """
 
-# ridge orientation
+"""# ridge orientation
 img = cv2.imread('../data/IR/quek1.bmp',0)
 img = img.astype(np.float64)
 img = cv2.GaussianBlur(img,(15,15),3)
@@ -81,11 +81,11 @@ theta_p = theta_p - np.amin(theta_p)
 theta_p = (theta_p/np.amax(theta_p)*255).astype(np.uint8)
 theta_q = theta_q - np.amin(theta_q)
 theta_q = (theta_q/np.amax(theta_q)*255).astype(np.uint8)
-
+"""
 
 """# test to see how image rotation works at small scale
 # results: rotating an image smoothes it somewhat, avoid multiple rotations
-img = (np.random.rand(3,3) * 255).astype(np.uint8)
+img = (np.random.rand(3,3,3) * 255).astype(np.uint8)
 rot_mat = cv2.getRotationMatrix2D((1,1),30,1)
 img30 = cv2.warpAffine(img,rot_mat,(3,3),cv2.INTER_NEAREST)
 img60 = cv2.warpAffine(img30,rot_mat,(3,3),cv2.INTER_NEAREST)
@@ -109,3 +109,11 @@ cv2.imwrite('../data/junk/img120.jpg',img120)
 cv2.imwrite('../data/junk/img150.jpg',img150)
 cv2.imwrite('../data/junk/img180.jpg',img180)
 """
+
+#test featuremat.FeatureMatMaker.rotateImgAndInd
+scales = np.arange(3,50,5)
+rot_angles = np.arange(10,180,10)
+img = cv2.imread('../data/color/quek1.bmp')
+img = cv2.pyrDown(img)
+feature_mat_maker = featuremat.FeatureMatMaker(img,scales)
+rotated_imgs = feature_mat_maker.rotateImgAndInd(img,1,1,rot_angles)
