@@ -7,6 +7,7 @@ Created on Thu Sep 08 11:11:37 2016
 import cv2
 import numpy as np
 import featuremat
+import sys
 
 """#test FeatureMat
 vessel_bin = np.load('../data/vessels/tanaka1.npy')
@@ -113,10 +114,12 @@ cv2.imwrite('../data/junk/img180.jpg',img180)
 #test featuremat.FeatureMatMaker.rotateImgAndInd
 scales = np.arange(3,50,5)
 rot_angles = np.arange(10,180,10)
-img = cv2.imread('../data/color/quek1.bmp')
-img = cv2.pyrDown(img)
-vessel_bin = np.load('../data/vessels/red/quek1.npy')
-vessel_ind = np.nonzero(vessel_bin)
-
+img = (np.random.rand(6,6,3)*10).astype(np.uint8)
+print img[:,:,0]
+print ''
+print img[:,:,1]
+print ''
+print img[:,:,2]
+vessel_ind = (np.array([1,3,1,2,3,4,2,4]),np.array([1,1,2,2,3,3,4,4]))
 feature_mat_maker = featuremat.FeatureMatMaker(img,scales)
 feature_mat_maker.getTrainMat(vessel_ind)
