@@ -6,6 +6,7 @@ Created on Thu Sep 08 09:46:31 2016
 import numpy as np
 import cv2
 import sys
+import copy
 
 class FeatureMatMaker(object):
     def __init__(self,img,scales):
@@ -64,13 +65,10 @@ class FeatureMatMaker(object):
         self.vessel_sample_size = self.vessel_ind[0].size
         num_scales = len(self.scales)
         rot_angles = np.arange(10,180,10)
-        vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(self.vessel_sample_size*(len(rot_angles))+1)]
-        print self.vessel_sample_size
-        print len(rot_angles)
-        print len(vessel_v)
+        vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(self.vessel_sample_size*(len(rot_angles)+1))]
         non_vessel_ind = self.getRandInd()
         non_vessel_sample_size = non_vessel_ind[0].size
-        non_vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(non_vessel_sample_size*(len(rot_angles))+1)]
+        non_vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(non_vessel_sample_size*(len(rot_angles)+1)*2)]# multiplied by 2 as temporary solution to insufficient list space
         
         #######################
         
@@ -80,6 +78,8 @@ class FeatureMatMaker(object):
                                                         vessel_ind,
                                                         non_vessel_ind,
                                                         rot_angles)
+        print non_vessel_sample_size
+        print ''
         for h in range(len(rotated_img)):
             for i in range(num_scales):
                 scaled = getScaledImg(rotated_img[h],self.scales[i])
@@ -87,19 +87,23 @@ class FeatureMatMaker(object):
                  non_vessel_deriv_mat) = self.getDerivMat(scaled,
                                                           rotated_vessel_ind[h],
                                                           rotated_non_vessel_ind[h])
-                print vessel_deriv_mat.shape
-                for j in range(self.vessel_sample_size):
-                    vessel_v[h*self.vessel_sample_size+j][i,:] = vessel_deriv_mat[:,j]####Something wrong here
-                for j in range(non_vessel_sample_size):
-                    non_vessel_v[h*non_vessel_sample_size+j][i,:] = non_vessel_deriv_mat[:,j]####Something wrong here
+                for j in range(vessel_deriv_mat.shape[1]):
+                    vessel_v[h*self.vessel_sample_size+j][i,:] = vessel_deriv_mat[:,j]
+                for j in range(non_vessel_deriv_mat.shape[1]):
+                    non_vessel_v[h*non_vessel_sample_size+j][i,:] = non_vessel_deriv_mat[:,j]
         
-        for i in range(self.vessel_sample_size):
-            print ''
-            print vessel_v[i][0,:]
+        vessel_v_copy = copy.deepcopy(vessel_v)
+        for i in range(1,len(vessel_v_copy)+1):
+            if np.array_equal(vessel_v_copy[-i],np.zeros((num_scales,self.num_features))):
+                vessel_v.pop(len(vessel_v_copy)-i)
+        for stuff in vessel_v:
+            if np.array_equal(stuff,np.zeros((num_scales,self.num_features))):
+                print 'exists'
+        return vessel_v
         sys.exit()
         #######################
         #   Feature matrix
-        vessel_feature_mat = np.zeros((self.vessel_sample_size,self.num_features*num_scales))
+        vessel_feature_mat = np.zeros((len(vessel_v),self.num_features*num_scales))
         non_vessel_feature_mat = np.zeros((non_vessel_sample_size,self.num_features*num_scales))
         for i in range(len(vessel_v)):
             vessel_feature_mat[i,:] = vessel_v[i].flatten()

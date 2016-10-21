@@ -122,4 +122,25 @@ print ''
 print img[:,:,2]
 vessel_ind = (np.array([1,3,1,2,3,4,2,4]),np.array([1,1,2,2,3,3,4,4]))
 feature_mat_maker = featuremat.FeatureMatMaker(img,scales)
-feature_mat_maker.getTrainMat(vessel_ind)
+vessel_v = feature_mat_maker.getTrainMat(vessel_ind)
+
+foo = img[:,:,0]
+sobelx = cv2.Sobel(foo,cv2.CV_64F,1,0)
+sobely = cv2.Sobel(foo,cv2.CV_64F,0,1)
+sobelxx = cv2.Sobel(foo,cv2.CV_64F,2,0)
+sobelyy = cv2.Sobel(foo,cv2.CV_64F,0,2)
+sobelxy = cv2.Sobel(foo,cv2.CV_64F,1,1)
+
+vessel_mat = img[:,:,0][vessel_ind][np.newaxis,:]
+deriv_matx = sobelx[vessel_ind][np.newaxis,:]
+deriv_maty = sobely[vessel_ind][np.newaxis,:]
+deriv_matxx = sobelxx[vessel_ind][np.newaxis,:]
+deriv_matyy = sobelyy[vessel_ind][np.newaxis,:]
+deriv_matxy = sobelxy[vessel_ind][np.newaxis,:]
+
+feature_mat = np.concatenate((vessel_mat,
+                              deriv_matx,
+                              deriv_maty,
+                              deriv_matxx,
+                              deriv_matyy,
+                              deriv_matxy),axis=0)
