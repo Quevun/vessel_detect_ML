@@ -72,14 +72,15 @@ class FeatureMatMaker(object):
         
         #######################
         
+        #######################
+        # Image rotation and feature extraction from it
         (rotated_img,
          rotated_vessel_ind,
          rotated_non_vessel_ind) = self.rotateImgAndInd(self.img,
                                                         vessel_ind,
                                                         non_vessel_ind,
                                                         rot_angles)
-        print non_vessel_sample_size
-        print ''
+
         for h in range(len(rotated_img)):
             for i in range(num_scales):
                 scaled = getScaledImg(rotated_img[h],self.scales[i])
@@ -89,22 +90,25 @@ class FeatureMatMaker(object):
                                                           rotated_non_vessel_ind[h])
                 for j in range(vessel_deriv_mat.shape[1]):
                     vessel_v[h*self.vessel_sample_size+j][i,:] = vessel_deriv_mat[:,j]
-                for j in range(non_vessel_deriv_mat.shape[1]):
+                for j in range(non_vessel_deriv_mat.shape[1]): # list index out of range,check non_vessel_deriv_mat
                     non_vessel_v[h*non_vessel_sample_size+j][i,:] = non_vessel_deriv_mat[:,j]
-        
+
+        ###########################
+        # Get rid of zero arrays        
         vessel_v_copy = copy.deepcopy(vessel_v)
+        non_vessel_v_copy = copy.deepcopy(non_vessel_v)
         for i in range(1,len(vessel_v_copy)+1):
             if np.array_equal(vessel_v_copy[-i],np.zeros((num_scales,self.num_features))):
                 vessel_v.pop(len(vessel_v_copy)-i)
-        for stuff in vessel_v:
-            if np.array_equal(stuff,np.zeros((num_scales,self.num_features))):
-                print 'exists'
-        return vessel_v
-        sys.exit()
+        for i in range(1,len(non_vessel_v_copy)+1):
+            if np.array_equal(non_vessel_v_copy[-i],np.zeros((num_scales,self.num_features))):
+                non_vessel_v.pop(len(non_vessel_v_copy)-i)
+        ########################
+        
         #######################
         #   Feature matrix
         vessel_feature_mat = np.zeros((len(vessel_v),self.num_features*num_scales))
-        non_vessel_feature_mat = np.zeros((non_vessel_sample_size,self.num_features*num_scales))
+        non_vessel_feature_mat = np.zeros((len(non_vessel_v),self.num_features*num_scales))
         for i in range(len(vessel_v)):
             vessel_feature_mat[i,:] = vessel_v[i].flatten()
         for i in range(len(non_vessel_v)):
@@ -113,8 +117,8 @@ class FeatureMatMaker(object):
             
         scaled_features = self.featureScale(np.concatenate((vessel_feature_mat,
                                                            non_vessel_feature_mat),axis=0))
-        vessel_feature_mat = scaled_features[:self.vessel_sample_size,:]
-        non_vessel_feature_mat = scaled_features[-non_vessel_sample_size:,:]
+        vessel_feature_mat = scaled_features[:self.vessel_sample_size,:]    # Make this consistent
+        non_vessel_feature_mat = scaled_features[-non_vessel_sample_size:,:]# with the recognition part
             
         return vessel_feature_mat,non_vessel_feature_mat
             

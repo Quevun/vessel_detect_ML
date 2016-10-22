@@ -124,23 +124,36 @@ vessel_ind = (np.array([1,3,1,2,3,4,2,4]),np.array([1,1,2,2,3,3,4,4]))
 feature_mat_maker = featuremat.FeatureMatMaker(img,scales)
 vessel_v = feature_mat_maker.getTrainMat(vessel_ind)
 
-foo = img[:,:,0]
-sobelx = cv2.Sobel(foo,cv2.CV_64F,1,0)
-sobely = cv2.Sobel(foo,cv2.CV_64F,0,1)
-sobelxx = cv2.Sobel(foo,cv2.CV_64F,2,0)
-sobelyy = cv2.Sobel(foo,cv2.CV_64F,0,2)
-sobelxy = cv2.Sobel(foo,cv2.CV_64F,1,1)
+dummy = (np.array([2,3]),np.array([2,3]))
+(rotated_img,
+ rotated_vessel_ind,
+ rotated_non_vessel_ind) = feature_mat_maker.rotateImgAndInd(img,vessel_ind,dummy,rot_angles)
 
-vessel_mat = img[:,:,0][vessel_ind][np.newaxis,:]
-deriv_matx = sobelx[vessel_ind][np.newaxis,:]
-deriv_maty = sobely[vessel_ind][np.newaxis,:]
-deriv_matxx = sobelxx[vessel_ind][np.newaxis,:]
-deriv_matyy = sobelyy[vessel_ind][np.newaxis,:]
-deriv_matxy = sobelxy[vessel_ind][np.newaxis,:]
-
-feature_mat = np.concatenate((vessel_mat,
-                              deriv_matx,
-                              deriv_maty,
-                              deriv_matxx,
-                              deriv_matyy,
-                              deriv_matxy),axis=0)
+for h in range(len(rotated_img)):
+    
+    img = featuremat.getScaledImg(rotated_img[h],3)
+    vessel_ind = rotated_vessel_ind[h]
+    for i in range(3):
+        foo = img[:,:,i]
+        sobelx = cv2.Sobel(foo,cv2.CV_64F,1,0)
+        sobely = cv2.Sobel(foo,cv2.CV_64F,0,1)
+        sobelxx = cv2.Sobel(foo,cv2.CV_64F,2,0)
+        sobelyy = cv2.Sobel(foo,cv2.CV_64F,0,2)
+        sobelxy = cv2.Sobel(foo,cv2.CV_64F,1,1)
+        
+        vessel_mat = img[:,:,i][vessel_ind][np.newaxis,:]
+        deriv_matx = sobelx[vessel_ind][np.newaxis,:]
+        deriv_maty = sobely[vessel_ind][np.newaxis,:]
+        deriv_matxx = sobelxx[vessel_ind][np.newaxis,:]
+        deriv_matyy = sobelyy[vessel_ind][np.newaxis,:]
+        deriv_matxy = sobelxy[vessel_ind][np.newaxis,:]
+        
+        feature_mat = np.concatenate((vessel_mat,
+                                      deriv_matx,
+                                      deriv_maty,
+                                      deriv_matxx,
+                                      deriv_matyy,
+                                      deriv_matxy),axis=0)
+                                      
+        for j in range(8):
+            print np.array_equal(vessel_v[h*8+j][0,i*6:i*6+6],feature_mat[:,j])
