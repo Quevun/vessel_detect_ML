@@ -12,9 +12,9 @@ delta1 = zeros(size(Theta1));
 delta2 = zeros(size(Theta2));
 J_sum = 0;
 
-files = dir('../data/feature_mat/more_non_vessels2/*.mat');
+files = dir('../data/feature_mat/rotated_img/*.mat');
 for file = files'
-  load(strcat('../data/feature_mat/more_non_vessels2/',file.name));
+  load(strcat('../data/feature_mat/rotated_img/',file.name));
   X = [vessel_feature_mat; non_vessel_feature_mat];
   y = [ones(size(vessel_feature_mat,1),1)*2; ones(size(non_vessel_feature_mat,1),1)];
   m = size(X, 1);
