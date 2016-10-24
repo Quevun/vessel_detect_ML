@@ -14,7 +14,7 @@ import os
 if __name__ == "__main__":
     scales = np.arange(3,50,5)
     num_features = len(scales)*30
-    threshold = 150000
+    threshold = 50000
     vessel_feature_mat = np.array([]).reshape(0,num_features)
     non_vessel_feature_mat = np.array([]).reshape(0,num_features)
     

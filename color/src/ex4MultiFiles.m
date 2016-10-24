@@ -1,5 +1,4 @@
-clear ; close all; clc
-input_layer_size = 180;
+input_layer_size = 300;
 hidden_layer_size = 25;
 num_labels = 2; 
 

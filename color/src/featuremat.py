@@ -78,8 +78,7 @@ class FeatureMatMaker(object):
         rot_angles = np.arange(10,180,10)
         vessel_v = []
         non_vessel_ind = self.getRandInd()
-        non_vessel_sample_size = non_vessel_ind[0].size
-        non_vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(non_vessel_sample_size*(len(rot_angles)+1)*2)]# multiplied by 2 as temporary solution to insufficient list space
+        non_vessel_v = []
         
         #######################
         
@@ -97,7 +96,7 @@ class FeatureMatMaker(object):
                             in xrange(rotated_vessel_ind[h][0].size)]
             sub_non_vessel_v = [np.zeros((num_scales,self.num_features)) 
                                 for _ 
-                                in xrange(non_vessel_deriv_mat.shape[1])]
+                                in xrange(rotated_non_vessel_ind[h][0].size)]
                                 
             for i in range(num_scales):
                 scaled = getScaledImg(rotated_img[h],self.scales[i])
