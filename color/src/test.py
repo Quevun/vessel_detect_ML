@@ -62,7 +62,7 @@ sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
 grad = np.arctan(sobely/sobelx)
 """
 
-"""# ridge orientation
+# ridge orientation
 img = cv2.imread('../data/IR/quek1.bmp',0)
 img = img.astype(np.float64)
 img = cv2.GaussianBlur(img,(15,15),3)
@@ -82,7 +82,7 @@ theta_p = theta_p - np.amin(theta_p)
 theta_p = (theta_p/np.amax(theta_p)*255).astype(np.uint8)
 theta_q = theta_q - np.amin(theta_q)
 theta_q = (theta_q/np.amax(theta_q)*255).astype(np.uint8)
-"""
+
 
 """# test to see how image rotation works at small scale
 # results: rotating an image smoothes it somewhat, avoid multiple rotations
@@ -111,7 +111,7 @@ cv2.imwrite('../data/junk/img150.jpg',img150)
 cv2.imwrite('../data/junk/img180.jpg',img180)
 """
 
-#test featuremat.FeatureMatMaker.rotateImgAndInd
+"""#test featuremat.FeatureMatMaker.rotateImgAndInd
 scales = np.arange(3,50,5)
 rot_angles = np.arange(10,180,10)
 img = (np.random.rand(6,6,3)*10).astype(np.uint8)
@@ -166,3 +166,4 @@ for h in range(len(rotated_img)):
     vessel_samples = vessel_ind[0].size
     print np.array_equal(vessel_feature_mat[bkmrk:bkmrk+vessel_samples,:30],feature_mat)
     bkmrk = bkmrk + vessel_samples
+"""
