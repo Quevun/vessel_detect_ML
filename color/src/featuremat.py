@@ -69,7 +69,6 @@ class FeatureMatMaker(object):
         return feature_mat
             
     def getTrainMat(self,vessel_ind):
-        
         #######################
         #   Initialization
         self.vessel_ind = vessel_ind
