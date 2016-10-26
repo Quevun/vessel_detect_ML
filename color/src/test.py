@@ -46,7 +46,7 @@ for i in range(len(scales)):
 """
 
 
-"""# test FeatureMat.getTraintMat
+"""# test FeatureMat.getTrainMat
 scales = np.arange(3,100,5)
 img = cv2.imread('../data/color/tanaka2.bmp')
 vessel_bin = np.load('../data/vessels/tanaka2.npy')
@@ -111,7 +111,7 @@ cv2.imwrite('../data/junk/img150.jpg',img150)
 cv2.imwrite('../data/junk/img180.jpg',img180)
 """
 
-#test featuremat.FeatureMatMaker.rotateImgAndInd
+"""#test featuremat.FeatureMatMaker.rotateImgAndInd
 scales = np.arange(3,50,5)
 rot_angles = np.arange(10,180,10)
 img = (np.random.rand(6,6,3)*10).astype(np.uint8)
@@ -171,3 +171,47 @@ for h in range(len(rotated_img)):
     vessel_samples = vessel_ind[0].size
     print np.array_equal(vessel_feature_mat[bkmrk:bkmrk+vessel_samples,:30],feature_mat)
     bkmrk = bkmrk + vessel_samples
+"""
+
+#test featuremat_noscale.py
+import featuremat_noscale
+
+img = cv2.imread('../data/color/quek1.bmp')
+img = cv2.pyrDown(img)
+vessel_bin = np.load('../data/vessels/red/quek1.npy')
+vessel_ind = np.nonzero(vessel_bin)
+feature_mat_maker = featuremat_noscale.FeatureMatMaker(img)
+vessel_feature_mat,non_vessel_feature_mat = feature_mat_maker.getTrainMat(vessel_ind)
+vessel_feature_mat2 = np.zeros((vessel_ind[0].size,30))
+
+img = featuremat_noscale.getScaledImg(img,3)
+for i in range(3):
+    foo = img[:,:,i]
+    sobelx = cv2.Sobel(foo,cv2.CV_64F,1,0)
+    sobely = cv2.Sobel(foo,cv2.CV_64F,0,1)
+    sobelxx = cv2.Sobel(foo,cv2.CV_64F,2,0)
+    sobelyy = cv2.Sobel(foo,cv2.CV_64F,0,2)
+    sobelxy = cv2.Sobel(foo,cv2.CV_64F,1,1)
+    sobelxxx = cv2.Sobel(foo,cv2.CV_64F,3,0,ksize=5)
+    sobelxxy = cv2.Sobel(foo,cv2.CV_64F,2,1,ksize=5)
+    sobelxyy = cv2.Sobel(foo,cv2.CV_64F,1,2,ksize=5)
+    sobelyyy = cv2.Sobel(foo,cv2.CV_64F,0,3,ksize=5)
+    
+    vessel_mat = img[:,:,i][vessel_ind][np.newaxis,:]
+    deriv_matx = sobelx[vessel_ind][np.newaxis,:]
+    deriv_maty = sobely[vessel_ind][np.newaxis,:]
+    deriv_matxx = sobelxx[vessel_ind][np.newaxis,:]
+    deriv_matyy = sobelyy[vessel_ind][np.newaxis,:]
+    deriv_matxy = sobelxy[vessel_ind][np.newaxis,:]
+    deriv_matxxx = sobelxxx[vessel_ind][np.newaxis,:]
+    deriv_matxxy = sobelxxy[vessel_ind][np.newaxis,:]
+    deriv_matxyy = sobelxyy[vessel_ind][np.newaxis,:]
+    deriv_matyyy = sobelyyy[vessel_ind][np.newaxis,:]
+    
+    sub_feature_mat = np.concatenate((vessel_mat,deriv_matx,deriv_maty,
+                                      deriv_matxx,deriv_matyy,deriv_matxy,
+                                      deriv_matxxx,deriv_matxxy,deriv_matxyy,deriv_matyyy),
+                                      axis=0)
+    vessel_feature_mat2[:,i*10:i*10+10] = sub_feature_mat.T
+    
+print np.array_equal(vessel_feature_mat,vessel_feature_mat2)

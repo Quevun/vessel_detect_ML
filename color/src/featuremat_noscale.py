@@ -8,60 +8,59 @@ import cv2
 import sys
 
 class FeatureMatMaker(object):
-    def __init__(self,img,scales):
+    def __init__(self,img):
         assert np.size(img,2) == 3
         assert img.dtype == 'uint8'
+        self.scale = 40
         self.img = img
-        self.scales = scales
         self.num_features = 30
         
     def getMat(self):
         nf = self.num_features   # Short for number of features
-        shape = (np.size(self.img,0),np.size(self.img,1),len(self.scales)*nf+1)
+        shape = (np.size(self.img,0),np.size(self.img,1),nf+1)
         feature_cube = np.zeros(shape)
-        for i in range(len(self.scales)):
-            scaled = getScaledImg(self.img,self.scales[i])
-            first = scaled[:,:,0]   #first,second and third slice in axis 2
-            second = scaled[:,:,1]
-            third = scaled[:,:,2]
-            
-            x1 = cv2.Sobel(first,cv2.CV_64F,1,0)[:,:,np.newaxis]
-            y1 = cv2.Sobel(first,cv2.CV_64F,0,1)[:,:,np.newaxis]
-            xx1 = cv2.Sobel(first,cv2.CV_64F,2,0)[:,:,np.newaxis]
-            yy1 = cv2.Sobel(first,cv2.CV_64F,0,2)[:,:,np.newaxis]
-            xy1 = cv2.Sobel(first,cv2.CV_64F,1,1)[:,:,np.newaxis]
-            xxx1 = cv2.Sobel(first,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
-            xxy1 = cv2.Sobel(first,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
-            xyy1 = cv2.Sobel(first,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
-            yyy1 = cv2.Sobel(first,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
-            
-            x2 = cv2.Sobel(second,cv2.CV_64F,1,0)[:,:,np.newaxis]
-            y2 = cv2.Sobel(second,cv2.CV_64F,0,1)[:,:,np.newaxis]
-            xx2 = cv2.Sobel(second,cv2.CV_64F,2,0)[:,:,np.newaxis]
-            yy2 = cv2.Sobel(second,cv2.CV_64F,0,2)[:,:,np.newaxis]
-            xy2 = cv2.Sobel(second,cv2.CV_64F,1,1)[:,:,np.newaxis]
-            xxx2 = cv2.Sobel(second,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
-            xxy2 = cv2.Sobel(second,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
-            xyy2 = cv2.Sobel(second,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
-            yyy2 = cv2.Sobel(second,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
-            
-            x3 = cv2.Sobel(third,cv2.CV_64F,1,0)[:,:,np.newaxis]
-            y3 = cv2.Sobel(third,cv2.CV_64F,0,1)[:,:,np.newaxis]
-            xx3 = cv2.Sobel(third,cv2.CV_64F,2,0)[:,:,np.newaxis]
-            yy3 = cv2.Sobel(third,cv2.CV_64F,0,2)[:,:,np.newaxis]
-            xy3 = cv2.Sobel(third,cv2.CV_64F,1,1)[:,:,np.newaxis]
-            xxx3 = cv2.Sobel(third,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
-            xxy3 = cv2.Sobel(third,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
-            xyy3 = cv2.Sobel(third,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
-            yyy3 = cv2.Sobel(third,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
-            
-            first = first[:,:,np.newaxis]
-            second = second[:,:,np.newaxis]
-            third = third[:,:,np.newaxis]
-            feature_cube[:,:,nf*i+1:nf*i+nf+1] = np.concatenate((first,x1,y1,xx1,yy1,xy1,xxx1,xxy1,xyy1,yyy1,
-                                                                 second,x2,y2,xx2,yy2,xy2,xxx2,xxy2,xyy2,yyy2,
-                                                                 third,x3,y3,xx3,yy3,xy3,xxx3,xxy3,xyy3,yyy3,),
-                                                                 axis=2)
+        scaled = getScaledImg(self.img,self.scale)
+        first = scaled[:,:,0]   #first,second and third slice in axis 2
+        second = scaled[:,:,1]
+        third = scaled[:,:,2]
+        
+        x1 = cv2.Sobel(first,cv2.CV_64F,1,0)[:,:,np.newaxis]
+        y1 = cv2.Sobel(first,cv2.CV_64F,0,1)[:,:,np.newaxis]
+        xx1 = cv2.Sobel(first,cv2.CV_64F,2,0)[:,:,np.newaxis]
+        yy1 = cv2.Sobel(first,cv2.CV_64F,0,2)[:,:,np.newaxis]
+        xy1 = cv2.Sobel(first,cv2.CV_64F,1,1)[:,:,np.newaxis]
+        xxx1 = cv2.Sobel(first,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
+        xxy1 = cv2.Sobel(first,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
+        xyy1 = cv2.Sobel(first,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
+        yyy1 = cv2.Sobel(first,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
+        
+        x2 = cv2.Sobel(second,cv2.CV_64F,1,0)[:,:,np.newaxis]
+        y2 = cv2.Sobel(second,cv2.CV_64F,0,1)[:,:,np.newaxis]
+        xx2 = cv2.Sobel(second,cv2.CV_64F,2,0)[:,:,np.newaxis]
+        yy2 = cv2.Sobel(second,cv2.CV_64F,0,2)[:,:,np.newaxis]
+        xy2 = cv2.Sobel(second,cv2.CV_64F,1,1)[:,:,np.newaxis]
+        xxx2 = cv2.Sobel(second,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
+        xxy2 = cv2.Sobel(second,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
+        xyy2 = cv2.Sobel(second,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
+        yyy2 = cv2.Sobel(second,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
+        
+        x3 = cv2.Sobel(third,cv2.CV_64F,1,0)[:,:,np.newaxis]
+        y3 = cv2.Sobel(third,cv2.CV_64F,0,1)[:,:,np.newaxis]
+        xx3 = cv2.Sobel(third,cv2.CV_64F,2,0)[:,:,np.newaxis]
+        yy3 = cv2.Sobel(third,cv2.CV_64F,0,2)[:,:,np.newaxis]
+        xy3 = cv2.Sobel(third,cv2.CV_64F,1,1)[:,:,np.newaxis]
+        xxx3 = cv2.Sobel(third,cv2.CV_64F,3,0,ksize=5)[:,:,np.newaxis]
+        xxy3 = cv2.Sobel(third,cv2.CV_64F,2,1,ksize=5)[:,:,np.newaxis]
+        xyy3 = cv2.Sobel(third,cv2.CV_64F,1,2,ksize=5)[:,:,np.newaxis]
+        yyy3 = cv2.Sobel(third,cv2.CV_64F,0,3,ksize=5)[:,:,np.newaxis]
+        
+        first = first[:,:,np.newaxis]
+        second = second[:,:,np.newaxis]
+        third = third[:,:,np.newaxis]
+        feature_cube[:,:,1:] = np.concatenate((first,x1,y1,xx1,yy1,xy1,xxx1,xxy1,xyy1,yyy1,
+                                               second,x2,y2,xx2,yy2,xy2,xxx2,xxy2,xyy2,yyy2,
+                                               third,x3,y3,xx3,yy3,xy3,xxx3,xxy3,xyy3,yyy3,),
+                                               axis=2)
             
         feature_mat = np.reshape(feature_cube,(shape[0]*shape[1],shape[2]),'F')
         feature_mat = self.featureScale(feature_mat)
@@ -73,32 +72,17 @@ class FeatureMatMaker(object):
         #   Initialization
         self.vessel_ind = vessel_ind
         self.vessel_sample_size = self.vessel_ind[0].size
-        num_scales = len(self.scales)
-        vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(self.vessel_sample_size)]
-        
+        vessel_feature_mat = np.zeros((self.vessel_sample_size,30))
         non_vessel_ind = self.getRandInd()
         non_vessel_sample_size = non_vessel_ind[0].size
-        non_vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(non_vessel_sample_size)]
+        non_vessel_feature_mat = np.zeros((non_vessel_sample_size,30))
         #######################        
         
-        for i in range(num_scales): 
-            scaled = getScaledImg(self.img,self.scales[i])
-            vessel_deriv_mat,non_vessel_deriv_mat = self.getDerivMat(scaled,self.vessel_ind,
-                                                                     non_vessel_ind)
-            for j in range(self.vessel_sample_size):
-                vessel_v[j][i,:] = vessel_deriv_mat[:,j]
-            for j in range(non_vessel_sample_size):
-                non_vessel_v[j][i,:] = non_vessel_deriv_mat[:,j]
-                
-        #######################
-        #   Feature matrix
-        vessel_feature_mat = np.zeros((self.vessel_sample_size,self.num_features*num_scales))
-        non_vessel_feature_mat = np.zeros((non_vessel_sample_size,self.num_features*num_scales))
-        for i in range(len(vessel_v)):
-            vessel_feature_mat[i,:] = vessel_v[i].flatten()
-        for i in range(len(non_vessel_v)):
-            non_vessel_feature_mat[i,:] = non_vessel_v[i].flatten()
-        ######################
+        scaled = getScaledImg(self.img,self.scale)
+        vessel_deriv_mat,non_vessel_deriv_mat = self.getDerivMat(scaled,self.vessel_ind,
+                                                                 non_vessel_ind)
+        vessel_feature_mat = vessel_deriv_mat.T
+        non_vessel_feature_mat = non_vessel_deriv_mat.T
             
         scaled_features = self.featureScale(np.concatenate((vessel_feature_mat,
                                                            non_vessel_feature_mat),axis=0))
