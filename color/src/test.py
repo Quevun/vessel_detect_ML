@@ -206,6 +206,8 @@ vessel_bin = np.random.rand(5,5)<0.2
 vessel_ind = np.nonzero(vessel_bin)
 feature_mat_maker = featuremat.FeatureMatMaker(img,scale)
 non_vessel_ind = feature_mat_maker.getRandInd(vessel_ind)
+non_vessel_bin = np.zeros((5,5)).astype(np.bool)
+non_vessel_bin[non_vessel_ind] = True
 #orient = feature_mat_maker.ridgeOrient()
 orient = np.random.rand(5,5)*180-90
 (categorized_vessel_ind,

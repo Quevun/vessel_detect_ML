@@ -110,7 +110,7 @@ class FeatureMatMaker(object):
         vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
         vessel_ind_struc = vessel_ind_struc.view([('y',np.int64),
                                                   ('x',np.int64)]) # structured array with (y,x) elements
-        sample_size = np.around(self.img.shape[0]*self.img.shape[1]/128)
+        sample_size = np.around(vessel_ind[0].size*3)
         y = np.random.randint(self.img.shape[0],size=sample_size)[np.newaxis,:]
         x = np.random.randint(self.img.shape[1],size=sample_size)[np.newaxis,:]
         non_vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
@@ -311,14 +311,14 @@ class FeatureMatMaker(object):
         for i in range(len(angle)):
             is_angle = ((vessel_orient >= angle[i]-5)*
                         (vessel_orient < angle[i]+5))
-            axis0_ind = vessel_ind[0][np.nonzero(vessel_ind[0] * is_angle)]
-            axis1_ind = vessel_ind[1][np.nonzero(vessel_ind[1] * is_angle)]
+            axis0_ind = vessel_ind[0][np.nonzero(is_angle)]
+            axis1_ind = vessel_ind[1][np.nonzero(is_angle)]
             categorized_vessel_ind.append((axis0_ind,axis1_ind))
             
             is_angle = ((non_vessel_orient >= angle[i]-5)*
                         (non_vessel_orient < angle[i]+5))
-            axis0_ind = non_vessel_ind[0][np.nonzero(non_vessel_ind[0] * is_angle)]
-            axis1_ind = non_vessel_ind[1][np.nonzero(non_vessel_ind[1] * is_angle)]
+            axis0_ind = non_vessel_ind[0][np.nonzero(is_angle)]
+            axis1_ind = non_vessel_ind[1][np.nonzero(is_angle)]
             categorized_non_vessel_ind.append((axis0_ind,axis1_ind))
             
         return categorized_vessel_ind,categorized_non_vessel_ind
