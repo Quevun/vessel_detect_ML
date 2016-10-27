@@ -68,7 +68,7 @@ class FeatureMatMaker(object):
         feature_mat[:,0] = 1  # First element of each feature vector is 1
         return feature_mat
             
-    def getTrainMat(self,vessel_ind):
+    def getTrainMat(self,vessel_ind,non_vessel_ind = None):
         #######################
         #   Initialization
         self.vessel_ind = vessel_ind
@@ -76,7 +76,8 @@ class FeatureMatMaker(object):
         num_scales = len(self.scales)
         vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(self.vessel_sample_size)]
         
-        non_vessel_ind = self.getRandInd()
+        if non_vessel_ind == None:
+            non_vessel_ind = self.getRandInd()
         non_vessel_sample_size = non_vessel_ind[0].size
         non_vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(non_vessel_sample_size)]
         #######################        
@@ -107,9 +108,11 @@ class FeatureMatMaker(object):
             
         return vessel_feature_mat,non_vessel_feature_mat
             
-    def getRandInd(self):
-        y = self.vessel_ind[0][np.newaxis,:]
-        x = self.vessel_ind[1][np.newaxis,:]
+    def getRandInd(self,vessel_ind=None):
+        if vessel_ind == None:
+            vessel_ind = self.vessel_ind
+        y = vessel_ind[0][np.newaxis,:]
+        x = vessel_ind[1][np.newaxis,:]
         vessel_ind_struc = np.concatenate((y,x),axis=0).flatten('F')
         vessel_ind_struc = vessel_ind_struc.view([('y',np.int64),
                                                   ('x',np.int64)]) # structured array with (y,x) elements
@@ -293,6 +296,15 @@ class FeatureMatMaker(object):
             
         return rotated_img,rotated_vessel_ind,rotated_non_vessel_ind
         
+    def ridgeOrient(self,img):
+        img = img[:,:,2]
+        sobelx = cv2.Sobel(img,cv2.CV_64F,1,0)
+        sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
+        orient = np.arctan(sobely/sobelx)
+        orient = orient - np.amin(orient)
+        orient = (orient/np.amax(orient)*255).astype(np.uint8)
+        return orient
+        
     def featureScale(self,feature_mat):
         feature_mean = feature_mat.mean(axis=0)
         feature_std = np.std(feature_mat,axis=0)
@@ -307,3 +319,14 @@ def getScaledImg(img,scale):
     img = img.astype(np.float64)
     scaled_img = cv2.GaussianBlur(img,(size,size),sigma)
     return scaled_img
+    
+def ridgeOrient(img):
+    img = img[:,:,2]
+    img = getScaledImg(img,20)
+    sobelx = cv2.Sobel(img,cv2.CV_64F,1,0)
+    sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
+    orient = np.arctan(sobely/sobelx)
+    orient = np.nan_to_num(orient)
+    orient = orient - np.amin(orient)
+    orient = (orient/np.amax(orient)*255).astype(np.uint8)
+    return orient

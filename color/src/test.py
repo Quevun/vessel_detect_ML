@@ -62,8 +62,9 @@ sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
 grad = np.arctan(sobely/sobelx)
 """
 
-"""# ridge orientation
-img = cv2.imread('../data/IR/quek1.bmp',0)
+# ridge orientation
+img = cv2.imread('../data/color/quek1.bmp')
+img = img[:,:,2]
 img = img.astype(np.float64)
 img = cv2.GaussianBlur(img,(15,15),3)
 Lxx = cv2.Sobel(img,cv2.CV_64F,2,0)
@@ -82,7 +83,7 @@ theta_p = theta_p - np.amin(theta_p)
 theta_p = (theta_p/np.amax(theta_p)*255).astype(np.uint8)
 theta_q = theta_q - np.amin(theta_q)
 theta_q = (theta_q/np.amax(theta_q)*255).astype(np.uint8)
-"""
+
 
 """# test to see how image rotation works at small scale
 # results: rotating an image smoothes it somewhat, avoid multiple rotations
@@ -173,45 +174,24 @@ for h in range(len(rotated_img)):
     bkmrk = bkmrk + vessel_samples
 """
 
-#test featuremat_noscale.py
+"""#test featuremat_noscale.py
 import featuremat_noscale
 
+scales = np.arange(3,50,5)
 img = cv2.imread('../data/color/quek1.bmp')
 img = cv2.pyrDown(img)
 vessel_bin = np.load('../data/vessels/red/quek1.npy')
 vessel_ind = np.nonzero(vessel_bin)
-feature_mat_maker = featuremat_noscale.FeatureMatMaker(img)
-vessel_feature_mat,non_vessel_feature_mat = feature_mat_maker.getTrainMat(vessel_ind)
-vessel_feature_mat2 = np.zeros((vessel_ind[0].size,30))
+feature_mat_maker = featuremat.FeatureMatMaker(img,scales)
+feature_mat_maker_noscale = featuremat_noscale.FeatureMatMaker(img)
+non_vessel_ind = feature_mat_maker.getRandInd(vessel_ind)
+vessel_feature_mat,non_vessel_feature_mat = feature_mat_maker.getTrainMat(vessel_ind,non_vessel_ind)
+vessel_feature_mat2,non_vessel_feature_mat2 = feature_mat_maker_noscale.getTrainMat(vessel_ind,non_vessel_ind)
 
-img = featuremat_noscale.getScaledImg(img,3)
-for i in range(3):
-    foo = img[:,:,i]
-    sobelx = cv2.Sobel(foo,cv2.CV_64F,1,0)
-    sobely = cv2.Sobel(foo,cv2.CV_64F,0,1)
-    sobelxx = cv2.Sobel(foo,cv2.CV_64F,2,0)
-    sobelyy = cv2.Sobel(foo,cv2.CV_64F,0,2)
-    sobelxy = cv2.Sobel(foo,cv2.CV_64F,1,1)
-    sobelxxx = cv2.Sobel(foo,cv2.CV_64F,3,0,ksize=5)
-    sobelxxy = cv2.Sobel(foo,cv2.CV_64F,2,1,ksize=5)
-    sobelxyy = cv2.Sobel(foo,cv2.CV_64F,1,2,ksize=5)
-    sobelyyy = cv2.Sobel(foo,cv2.CV_64F,0,3,ksize=5)
-    
-    vessel_mat = img[:,:,i][vessel_ind][np.newaxis,:]
-    deriv_matx = sobelx[vessel_ind][np.newaxis,:]
-    deriv_maty = sobely[vessel_ind][np.newaxis,:]
-    deriv_matxx = sobelxx[vessel_ind][np.newaxis,:]
-    deriv_matyy = sobelyy[vessel_ind][np.newaxis,:]
-    deriv_matxy = sobelxy[vessel_ind][np.newaxis,:]
-    deriv_matxxx = sobelxxx[vessel_ind][np.newaxis,:]
-    deriv_matxxy = sobelxxy[vessel_ind][np.newaxis,:]
-    deriv_matxyy = sobelxyy[vessel_ind][np.newaxis,:]
-    deriv_matyyy = sobelyyy[vessel_ind][np.newaxis,:]
-    
-    sub_feature_mat = np.concatenate((vessel_mat,deriv_matx,deriv_maty,
-                                      deriv_matxx,deriv_matyy,deriv_matxy,
-                                      deriv_matxxx,deriv_matxxy,deriv_matxyy,deriv_matyyy),
-                                      axis=0)
-    vessel_feature_mat2[:,i*10:i*10+10] = sub_feature_mat.T
-    
-print np.array_equal(vessel_feature_mat,vessel_feature_mat2)
+vessel_feature_mat = vessel_feature_mat.round(8)
+vessel_feature_mat2 = vessel_feature_mat2.round(8)
+non_vessel_feature_mat = non_vessel_feature_mat.round(8)
+non_vessel_feature_mat2 = non_vessel_feature_mat2.round(8)
+print np.array_equal(vessel_feature_mat[:,:30],vessel_feature_mat2)
+print np.array_equal(non_vessel_feature_mat[:,:30],non_vessel_feature_mat2)
+"""

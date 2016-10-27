@@ -11,7 +11,7 @@ class FeatureMatMaker(object):
     def __init__(self,img):
         assert np.size(img,2) == 3
         assert img.dtype == 'uint8'
-        self.scale = 40
+        self.scale = 3
         self.img = img
         self.num_features = 30
         
@@ -67,13 +67,15 @@ class FeatureMatMaker(object):
         feature_mat[:,0] = 1  # First element of each feature vector is 1
         return feature_mat
             
-    def getTrainMat(self,vessel_ind):
+    def getTrainMat(self,vessel_ind,non_vessel_ind=None):
         #######################
         #   Initialization
         self.vessel_ind = vessel_ind
         self.vessel_sample_size = self.vessel_ind[0].size
         vessel_feature_mat = np.zeros((self.vessel_sample_size,30))
-        non_vessel_ind = self.getRandInd()
+        
+        if non_vessel_ind == None:
+            non_vessel_ind = self.getRandInd()
         non_vessel_sample_size = non_vessel_ind[0].size
         non_vessel_feature_mat = np.zeros((non_vessel_sample_size,30))
         #######################        
