@@ -73,33 +73,27 @@ class FeatureMatMaker(object):
         #   Initialization
         self.vessel_ind = vessel_ind
         self.vessel_sample_size = self.vessel_ind[0].size
+        nf = self.num_features
         num_scales = len(self.scales)
-        vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(self.vessel_sample_size)]
+        vessel_feature_mat = np.zeros((self.vessel_sample_size,
+                                       nf*num_scales))
         
         if non_vessel_ind == None:
             non_vessel_ind = self.getRandInd()
         non_vessel_sample_size = non_vessel_ind[0].size
-        non_vessel_v = [np.zeros((num_scales,self.num_features)) for _ in xrange(non_vessel_sample_size)]
+        non_vessel_feature_mat = np.zeros((non_vessel_sample_size,
+                                           nf*num_scales))
         #######################        
+        
+        orient = self.ridgeOrient()
+        vessel_orient = orient[vessel_ind]
         
         for i in range(num_scales): 
             scaled = getScaledImg(self.img,self.scales[i])
             vessel_deriv_mat,non_vessel_deriv_mat = self.getDerivMat(scaled,self.vessel_ind,
                                                                      non_vessel_ind)
-            for j in range(self.vessel_sample_size):
-                vessel_v[j][i,:] = vessel_deriv_mat[:,j]
-            for j in range(non_vessel_sample_size):
-                non_vessel_v[j][i,:] = non_vessel_deriv_mat[:,j]
-                
-        #######################
-        #   Feature matrix
-        vessel_feature_mat = np.zeros((self.vessel_sample_size,self.num_features*num_scales))
-        non_vessel_feature_mat = np.zeros((non_vessel_sample_size,self.num_features*num_scales))
-        for i in range(len(vessel_v)):
-            vessel_feature_mat[i,:] = vessel_v[i].flatten()
-        for i in range(len(non_vessel_v)):
-            non_vessel_feature_mat[i,:] = non_vessel_v[i].flatten()
-        ######################
+            vessel_feature_mat[:,i*nf:i*nf+nf] = vessel_deriv_mat.T
+            non_vessel_feature_mat[:,i*nf:i*nf+nf] = non_vessel_deriv_mat.T
             
         scaled_features = self.featureScale(np.concatenate((vessel_feature_mat,
                                                            non_vessel_feature_mat),axis=0))
@@ -296,14 +290,38 @@ class FeatureMatMaker(object):
             
         return rotated_img,rotated_vessel_ind,rotated_non_vessel_ind
         
-    def ridgeOrient(self,img):
-        img = img[:,:,2]
+    def ridgeOrient(self):
+        img = self.img[:,:,2]
+        img = getScaledImg(img,10)
         sobelx = cv2.Sobel(img,cv2.CV_64F,1,0)
         sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
         orient = np.arctan(sobely/sobelx)
-        orient = orient - np.amin(orient)
-        orient = (orient/np.amax(orient)*255).astype(np.uint8)
+        orient = np.nan_to_num(orient)
+        orient = np.rad2deg(orient)
         return orient
+        
+    # Categorize indices according to orientation
+    def categorizeInd(self,orient,vessel_ind,non_vessel_ind):
+        angle = range(-85,90,10)
+        vessel_orient = orient[vessel_ind]
+        non_vessel_orient = orient[non_vessel_ind]
+        categorized_vessel_ind = []
+        categorized_non_vessel_ind = []
+        #vessel_orient = np.random.rand(10)*180-90
+        for i in range(len(angle)):
+            is_angle = ((vessel_orient >= angle[i]-5)*
+                        (vessel_orient < angle[i]+5))
+            axis0_ind = vessel_ind[0][np.nonzero(vessel_ind[0] * is_angle)]
+            axis1_ind = vessel_ind[1][np.nonzero(vessel_ind[1] * is_angle)]
+            categorized_vessel_ind.append((axis0_ind,axis1_ind))
+            
+            is_angle = ((non_vessel_orient >= angle[i]-5)*
+                        (non_vessel_orient < angle[i]+5))
+            axis0_ind = non_vessel_ind[0][np.nonzero(non_vessel_ind[0] * is_angle)]
+            axis1_ind = non_vessel_ind[1][np.nonzero(non_vessel_ind[1] * is_angle)]
+            categorized_non_vessel_ind.append((axis0_ind,axis1_ind))
+            
+        return categorized_vessel_ind,categorized_non_vessel_ind
         
     def featureScale(self,feature_mat):
         feature_mean = feature_mat.mean(axis=0)
@@ -319,14 +337,3 @@ def getScaledImg(img,scale):
     img = img.astype(np.float64)
     scaled_img = cv2.GaussianBlur(img,(size,size),sigma)
     return scaled_img
-    
-def ridgeOrient(img):
-    img = img[:,:,2]
-    img = getScaledImg(img,20)
-    sobelx = cv2.Sobel(img,cv2.CV_64F,1,0)
-    sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
-    orient = np.arctan(sobely/sobelx)
-    orient = np.nan_to_num(orient)
-    orient = orient - np.amin(orient)
-    orient = (orient/np.amax(orient)*255).astype(np.uint8)
-    return orient

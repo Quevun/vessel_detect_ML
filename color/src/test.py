@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 import featuremat
 import sys
+import time
 
 """#test FeatureMat
 vessel_bin = np.load('../data/vessels/tanaka1.npy')
@@ -62,7 +63,7 @@ sobely = cv2.Sobel(img,cv2.CV_64F,0,1)
 grad = np.arctan(sobely/sobelx)
 """
 
-# ridge orientation
+"""# ridge orientation
 img = cv2.imread('../data/color/quek1.bmp')
 img = img[:,:,2]
 img = img.astype(np.float64)
@@ -83,7 +84,7 @@ theta_p = theta_p - np.amin(theta_p)
 theta_p = (theta_p/np.amax(theta_p)*255).astype(np.uint8)
 theta_q = theta_q - np.amin(theta_q)
 theta_q = (theta_q/np.amax(theta_q)*255).astype(np.uint8)
-
+"""
 
 """# test to see how image rotation works at small scale
 # results: rotating an image smoothes it somewhat, avoid multiple rotations
@@ -195,3 +196,19 @@ non_vessel_feature_mat2 = non_vessel_feature_mat2.round(8)
 print np.array_equal(vessel_feature_mat[:,:30],vessel_feature_mat2)
 print np.array_equal(non_vessel_feature_mat[:,:30],non_vessel_feature_mat2)
 """
+
+# test categorizeInd
+#img = cv2.imread('../data/color/quek1.bmp')
+img = np.zeros((5,5,3)).astype(np.uint8)
+scale = np.arange(3,50,5)
+#vessel_bin = np.load('../data/vessels/red/quek1.npy')
+vessel_bin = np.random.rand(5,5)<0.2
+vessel_ind = np.nonzero(vessel_bin)
+feature_mat_maker = featuremat.FeatureMatMaker(img,scale)
+non_vessel_ind = feature_mat_maker.getRandInd(vessel_ind)
+#orient = feature_mat_maker.ridgeOrient()
+orient = np.random.rand(5,5)*180-90
+(categorized_vessel_ind,
+ categorized_non_vessel_ind) = feature_mat_maker.categorizeInd(orient,
+                                                               vessel_ind,
+                                                               non_vessel_ind)
