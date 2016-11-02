@@ -86,9 +86,11 @@ class FeatureMatMaker(object):
         #######################        
         
         orient = self.ridgeOrient()
-        vessel_orient = orient[vessel_ind]
+        categorized_vessel_ind,categorized_non_vessel_ind = self.categorizeInd(orient,
+                                                                               vessel_ind,
+                                                                               non_vessel_ind)
         
-        for i in range(num_scales): 
+        for i in range(num_scales):
             scaled = getScaledImg(self.img,self.scales[i])
             vessel_deriv_mat,non_vessel_deriv_mat = self.getDerivMat(scaled,self.vessel_ind,
                                                                      non_vessel_ind)
