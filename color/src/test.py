@@ -47,15 +47,6 @@ for i in range(len(scales)):
 """
 
 
-"""# test FeatureMat.getTrainMat
-scales = np.arange(3,100,5)
-img = cv2.imread('../data/color/tanaka2.bmp')
-vessel_bin = np.load('../data/vessels/tanaka2.npy')
-vessel_ind = np.nonzero(vessel_bin)
-featuremat_maker = featuremat.FeatureMatMaker(img,scales)
-vessel_feature,non_vessel_feature = featuremat_maker.getTrainMat(vessel_ind)
-"""
-
 """# gradient direction image
 img = cv2.imread('../data/IR/quek1.bmp',0)
 sobelx = cv2.Sobel(img,cv2.CV_64F,1,0)
@@ -197,7 +188,7 @@ print np.array_equal(vessel_feature_mat[:,:30],vessel_feature_mat2)
 print np.array_equal(non_vessel_feature_mat[:,:30],non_vessel_feature_mat2)
 """
 
-# test categorizeInd
+"""# test categorizeInd
 #img = cv2.imread('../data/color/quek1.bmp')
 img = np.zeros((5,5,3)).astype(np.uint8)
 scale = np.arange(3,50,5)
@@ -214,3 +205,12 @@ orient = np.random.rand(5,5)*180-90
  categorized_non_vessel_ind) = feature_mat_maker.categorizeInd(orient,
                                                                vessel_ind,
                                                                non_vessel_ind)
+"""
+
+# test FeatureMat.getTrainMat
+scale = np.arange(3,50,5)
+img = (np.random.rand(10,10,3)*255).astype(np.uint8)
+vessel_bin = np.random.rand(10,10)<0.2
+vessel_ind = np.nonzero(vessel_bin)
+feature_mat_maker = featuremat.FeatureMatMaker(img,scale)
+vessel_feature_mat,non_vessel_feature_mat = feature_mat_maker.getTrainMat(vessel_ind)

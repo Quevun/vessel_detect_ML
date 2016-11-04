@@ -87,43 +87,47 @@ class FeatureMatMaker(object):
          categorized_non_vessel_ind) = self.categorizeInd(orient,
                                                           vessel_ind,
                                                           non_vessel_ind)
-        
         ####################################
         # Make feature matrix
+        temp_list = []
         for i in range(num_scales):
             scaled = getScaledImg(self.img,self.scales[i])
+            temp_mat = np.array([]).reshape(0,nf)##############################
             for j in range(len(self.angle)):
+                
                 (rotated_img,
                  rotated_vessel_ind,
                  rotated_non_vessel_ind) = self.rotateImgAndInd(scaled,
-                                                                categorized_vessel_ind[j],
+                                                                categorized_vessel_ind[j],# do something about empty ind
                                                                 categorized_non_vessel_ind[j],
                                                                 self.angle[len(self.angle)-j-1])
+                
                 (vessel_deriv_mat,
                  non_vessel_deriv_mat) = self.getDerivMat(rotated_img,
                                                           rotated_vessel_ind,
                                                           rotated_non_vessel_ind)
-                                                          
+
                 vessel_feature_mat = np.concatenate((vessel_feature_mat,
                                                      vessel_deriv_mat.T),0)
                 non_vessel_feature_mat = np.concatenate((non_vessel_feature_mat,
                                                          non_vessel_deriv_mat.T),0)
+                np.concatenate((temp_mat,vessel_deriv_mat),0)############################
             if not 'vessel_feature_mat_ax0_size' in locals():
                 vessel_feature_mat_ax0_size = vessel_feature_mat.shape[0]
             if not 'non_vessel_feature_mat_ax0_size' in locals():
                 non_vessel_feature_mat_ax0_size = non_vessel_feature_mat.shape[0]
-                
+            temp_list.append(temp_mat)#############################
         vessel_feature_mat = vessel_feature_mat.reshape(vessel_feature_mat_ax0_size,
                                                         nf*num_scales)# check if reshape works properly
-        non_vessel_feature_mat = vessel_feature_mat.reshape(non_vessel_feature_mat_ax0_size,
-                                                            nf*num_scales)
+        non_vessel_feature_mat = non_vessel_feature_mat.reshape(non_vessel_feature_mat_ax0_size,
+                                                                nf*num_scales)
         ####################################
-                                                            
+        """
         scaled_features = self.featureScale(np.concatenate((vessel_feature_mat,
                                                            non_vessel_feature_mat),axis=0))
         vessel_feature_mat = scaled_features[:vessel_feature_mat_ax0_size,:]
         non_vessel_feature_mat = scaled_features[-non_vessel_feature_mat_ax0_size:,:]
-            
+        """    
         return vessel_feature_mat,non_vessel_feature_mat
             
     def getRandInd(self,vessel_ind=None):
@@ -281,37 +285,69 @@ class FeatureMatMaker(object):
         non_vessel_bin[non_vessel_ind] = 255
         padded_non_vessel_bin[y_pad/2:-y_pad/2,x_pad/2:-x_pad/2] = non_vessel_bin
         
-        rotated_img = [img]
-        rotated_vessel_ind = [vessel_ind]
-        rotated_non_vessel_ind = [non_vessel_ind]
-        for angle in rot_angle:
-            rot_mat = cv2.getRotationMatrix2D((x_mid,y_mid),angle,1)
-            
+        try:
+            rot_angle.shape
+            multiple_angles = True
+        except AttributeError:
+            multiple_angles = False
+        
+        if multiple_angles:
+            rotated_img = [img]
+            rotated_vessel_ind = [vessel_ind]
+            rotated_non_vessel_ind = [non_vessel_ind]
+            for angle in rot_angle:
+                rot_mat = cv2.getRotationMatrix2D((x_mid,y_mid),angle,1)
+                
+                # rotate img
+                temp = np.zeros((padded_img.shape))
+                temp[:,:,0] = cv2.warpAffine(padded_img[:,:,0],rot_mat
+                                            ,(padded_img.shape[1],padded_img.shape[0]))
+                temp[:,:,1] = cv2.warpAffine(padded_img[:,:,1],rot_mat
+                                            ,(padded_img.shape[1],padded_img.shape[0]))
+                temp[:,:,2] = cv2.warpAffine(padded_img[:,:,2],rot_mat
+                                            ,(padded_img.shape[1],padded_img.shape[0]))
+                temp = temp.astype(np.uint8)
+                rotated_img.append(temp)
+                
+                # rotate vessel coordinates
+                temp = cv2.warpAffine(padded_vessel_bin,rot_mat
+                                     ,(padded_img.shape[1],padded_img.shape[0])
+                                     ,flags=cv2.INTER_NEAREST).astype(np.uint8)
+                temp = np.nonzero(temp)
+                rotated_vessel_ind.append(temp)
+                
+                # rotate non vessel coordinates
+                temp = cv2.warpAffine(padded_non_vessel_bin,rot_mat
+                                     ,(padded_img.shape[1],padded_img.shape[0])
+                                     ,flags=cv2.INTER_NEAREST).astype(np.uint8)
+                temp = np.nonzero(temp)
+                rotated_non_vessel_ind.append(temp)
+                
+        else:
+            rot_mat = cv2.getRotationMatrix2D((x_mid,y_mid),rot_angle,1)
+                
             # rotate img
-            temp = np.zeros((padded_img.shape))
-            temp[:,:,0] = cv2.warpAffine(padded_img[:,:,0],rot_mat
+            rotated_img = np.zeros((padded_img.shape))
+            rotated_img[:,:,0] = cv2.warpAffine(padded_img[:,:,0],rot_mat
                                         ,(padded_img.shape[1],padded_img.shape[0]))
-            temp[:,:,1] = cv2.warpAffine(padded_img[:,:,1],rot_mat
+            rotated_img[:,:,1] = cv2.warpAffine(padded_img[:,:,1],rot_mat
                                         ,(padded_img.shape[1],padded_img.shape[0]))
-            temp[:,:,2] = cv2.warpAffine(padded_img[:,:,2],rot_mat
+            rotated_img[:,:,2] = cv2.warpAffine(padded_img[:,:,2],rot_mat
                                         ,(padded_img.shape[1],padded_img.shape[0]))
-            temp = temp.astype(np.uint8)
-            rotated_img.append(temp)
+            rotated_img = rotated_img.astype(np.uint8)
             
             # rotate vessel coordinates
-            temp = cv2.warpAffine(padded_vessel_bin,rot_mat
-                                 ,(padded_img.shape[1],padded_img.shape[0])
-                                 ,flags=cv2.INTER_NEAREST).astype(np.uint8)
-            temp = np.nonzero(temp)
-            rotated_vessel_ind.append(temp)
+            rotated_vessel_ind = cv2.warpAffine(padded_vessel_bin,rot_mat,
+                                                (padded_img.shape[1],padded_img.shape[0]),
+                                                flags=cv2.INTER_NEAREST).astype(np.uint8)
+            rotated_vessel_ind = np.nonzero(rotated_vessel_ind)
             
             # rotate non vessel coordinates
-            temp = cv2.warpAffine(padded_non_vessel_bin,rot_mat
-                                 ,(padded_img.shape[1],padded_img.shape[0])
-                                 ,flags=cv2.INTER_NEAREST).astype(np.uint8)
-            temp = np.nonzero(temp)
-            rotated_non_vessel_ind.append(temp)
-            
+            rotated_non_vessel_ind = cv2.warpAffine(padded_non_vessel_bin,rot_mat,
+                                                    (padded_img.shape[1],padded_img.shape[0]),
+                                                    flags=cv2.INTER_NEAREST).astype(np.uint8)
+            rotated_non_vessel_ind = np.nonzero(rotated_non_vessel_ind)
+        
         return rotated_img,rotated_vessel_ind,rotated_non_vessel_ind
         
     def ridgeOrient(self):
