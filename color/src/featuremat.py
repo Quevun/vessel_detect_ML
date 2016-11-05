@@ -75,11 +75,11 @@ class FeatureMatMaker(object):
         self.vessel_ind = vessel_ind
         nf = self.num_features
         num_scales = len(self.scales)
-        vessel_feature_mat = np.array([]).reshape(0,nf)
+        vessel_feature_mat = np.array([]).reshape((0,nf))
         
         if non_vessel_ind == None:
             non_vessel_ind = self.getRandInd()
-        non_vessel_feature_mat = np.array([]).reshape(0,nf)
+        non_vessel_feature_mat = np.array([]).reshape((0,nf))
         #######################        
         
         orient = self.ridgeOrient()
@@ -89,10 +89,12 @@ class FeatureMatMaker(object):
                                                           non_vessel_ind)
         ####################################
         # Make feature matrix
-        temp_list = []
+        vessel_feature_submat_list = []
+        self.rotated_vessel_ind_list = []
         for i in range(num_scales):
             scaled = getScaledImg(self.img,self.scales[i])
-            temp_mat = np.array([]).reshape(0,nf)##############################
+            vessel_feature_submat = np.array([]).reshape((0,nf))
+            non_vessel_feature_submat = np.array([]).reshape((0,nf))
             for j in range(len(self.angle)):
                 
                 (rotated_img,
@@ -101,26 +103,26 @@ class FeatureMatMaker(object):
                                                                 categorized_vessel_ind[j],# do something about empty ind
                                                                 categorized_non_vessel_ind[j],
                                                                 self.angle[len(self.angle)-j-1])
-                
+                if i == 0:#################
+                    self.rotated_vessel_ind_list.append(rotated_vessel_ind)################
                 (vessel_deriv_mat,
                  non_vessel_deriv_mat) = self.getDerivMat(rotated_img,
                                                           rotated_vessel_ind,
                                                           rotated_non_vessel_ind)
 
-                vessel_feature_mat = np.concatenate((vessel_feature_mat,
+                vessel_feature_submat = np.concatenate((vessel_feature_submat,
                                                      vessel_deriv_mat.T),0)
-                non_vessel_feature_mat = np.concatenate((non_vessel_feature_mat,
+                non_vessel_feature_submat = np.concatenate((non_vessel_feature_submat,
                                                          non_vessel_deriv_mat.T),0)
-                np.concatenate((temp_mat,vessel_deriv_mat),0)############################
             if not 'vessel_feature_mat_ax0_size' in locals():
-                vessel_feature_mat_ax0_size = vessel_feature_mat.shape[0]
+                vessel_feature_mat_ax0_size = vessel_feature_submat.shape[0]
             if not 'non_vessel_feature_mat_ax0_size' in locals():
-                non_vessel_feature_mat_ax0_size = non_vessel_feature_mat.shape[0]
-            temp_list.append(temp_mat)#############################
-        vessel_feature_mat = vessel_feature_mat.reshape(vessel_feature_mat_ax0_size,
-                                                        nf*num_scales)# check if reshape works properly
-        non_vessel_feature_mat = non_vessel_feature_mat.reshape(non_vessel_feature_mat_ax0_size,
-                                                                nf*num_scales)
+                non_vessel_feature_mat_ax0_size = non_vessel_feature_submat.shape[0]
+            vessel_feature_submat_list.append(vessel_feature_submat)
+        vessel_feature_mat = np.array([]).reshape((vessel_feature_mat_ax0_size,0))
+        for i in vessel_feature_submat_list:
+            vessel_feature_mat = np.concatenate((vessel_feature_mat,i),1)
+
         ####################################
         """
         scaled_features = self.featureScale(np.concatenate((vessel_feature_mat,
@@ -128,7 +130,7 @@ class FeatureMatMaker(object):
         vessel_feature_mat = scaled_features[:vessel_feature_mat_ax0_size,:]
         non_vessel_feature_mat = scaled_features[-non_vessel_feature_mat_ax0_size:,:]
         """    
-        return vessel_feature_mat,non_vessel_feature_mat
+        return vessel_feature_mat,non_vessel_feature_mat,categorized_vessel_ind,categorized_non_vessel_ind
             
     def getRandInd(self,vessel_ind=None):
         if vessel_ind == None:

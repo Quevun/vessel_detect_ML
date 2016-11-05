@@ -209,8 +209,86 @@ orient = np.random.rand(5,5)*180-90
 
 # test FeatureMat.getTrainMat
 scale = np.arange(3,50,5)
-img = (np.random.rand(10,10,3)*255).astype(np.uint8)
-vessel_bin = np.random.rand(10,10)<0.2
+#img = (np.random.rand(5,5,3)*255).astype(np.uint8)
+img = cv2.imread('../data/color/quek1.bmp')
+#vessel_bin = np.random.rand(5,5)<0.2
+#vessel_ind = np.nonzero(vessel_bin)
+vessel_bin = np.load('../data/vessels/red/quek1.npy')
 vessel_ind = np.nonzero(vessel_bin)
 feature_mat_maker = featuremat.FeatureMatMaker(img,scale)
-vessel_feature_mat,non_vessel_feature_mat = feature_mat_maker.getTrainMat(vessel_ind)
+
+(vessel_feature_mat,
+ non_vessel_feature_mat,
+ categorized_vessel_ind,
+ categorized_non_vessel_ind) = feature_mat_maker.getTrainMat(vessel_ind)
+
+img = featuremat.getScaledImg(img,43)
+rotated_vessel_ind_sizes = [166,221,82,49,21,9,13,8,6,8,2,6,7,11,14,25,47,111] # size of categorized vessel ind for each orientation(for quek1.bmp)
+(rotated_img,
+ rotated_vessel_ind,
+ rotated_non_vessel_ind) = feature_mat_maker.rotateImgAndInd(img,
+                                                             categorized_vessel_ind[2],
+                                                             categorized_non_vessel_ind[2],
+                                                             65)# finished testing 65
+x = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,1,0)
+y = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,0,1)
+xx = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,2,0)
+yy = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,0,2)
+xy = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,1,1)
+xxx = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,3,0,ksize=5)
+xxy = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,2,1,ksize=5)
+xyy = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,1,2,ksize=5)
+yyy = cv2.Sobel(rotated_img[:,:,0],cv2.CV_64F,0,3,ksize=5)
+
+x2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,1,0)
+y2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,0,1)
+xx2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,2,0)
+yy2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,0,2)
+xy2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,1,1)
+xxx2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,3,0,ksize=5)
+xxy2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,2,1,ksize=5)
+xyy2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,1,2,ksize=5)
+yyy2 = cv2.Sobel(rotated_img[:,:,1],cv2.CV_64F,0,3,ksize=5)
+
+x3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,1,0)
+y3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,0,1)
+xx3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,2,0)
+yy3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,0,2)
+xy3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,1,1)
+xxx3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,3,0,ksize=5)
+xxy3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,2,1,ksize=5)
+xyy3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,1,2,ksize=5)
+yyy3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,0,3,ksize=5)
+
+bkmrk = sum(rotated_vessel_ind_sizes[:2])
+offset = rotated_vessel_ind_sizes[2]
+offset2 = 240
+print np.array_equal(x[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+1])
+print np.array_equal(y[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+2])
+print np.array_equal(xx[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+3])
+print np.array_equal(yy[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+4])
+print np.array_equal(xy[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+5])
+print np.array_equal(xxx[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+6])
+print np.array_equal(xxy[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+7])
+print np.array_equal(xyy[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+8])
+print np.array_equal(yyy[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+9])
+
+print np.array_equal(x2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+1])
+print np.array_equal(y2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+2])
+print np.array_equal(xx2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+3])
+print np.array_equal(yy2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+4])
+print np.array_equal(xy2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+5])
+print np.array_equal(xxx2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+6])
+print np.array_equal(xxy2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+7])
+print np.array_equal(xyy2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+8])
+print np.array_equal(yyy2[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+10+9])
+
+print np.array_equal(x3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+1])
+print np.array_equal(y3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+2])
+print np.array_equal(xx3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+3])
+print np.array_equal(yy3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+4])
+print np.array_equal(xy3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+5])
+print np.array_equal(xxx3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+6])
+print np.array_equal(xxy3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+7])
+print np.array_equal(xyy3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+8])
+print np.array_equal(yyy3[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+20+9])
