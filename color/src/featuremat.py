@@ -75,11 +75,9 @@ class FeatureMatMaker(object):
         self.vessel_ind = vessel_ind
         nf = self.num_features
         num_scales = len(self.scales)
-        vessel_feature_mat = np.array([]).reshape((0,nf))
         
         if non_vessel_ind == None:
             non_vessel_ind = self.getRandInd()
-        non_vessel_feature_mat = np.array([]).reshape((0,nf))
         #######################        
         
         orient = self.ridgeOrient()
@@ -90,7 +88,8 @@ class FeatureMatMaker(object):
         ####################################
         # Make feature matrix
         vessel_feature_submat_list = []
-        self.rotated_vessel_ind_list = []
+        non_vessel_feature_submat_list = []
+        self.rotated_non_vessel_ind_sizes= []
         for i in range(num_scales):
             scaled = getScaledImg(self.img,self.scales[i])
             vessel_feature_submat = np.array([]).reshape((0,nf))
@@ -103,8 +102,9 @@ class FeatureMatMaker(object):
                                                                 categorized_vessel_ind[j],# do something about empty ind
                                                                 categorized_non_vessel_ind[j],
                                                                 self.angle[len(self.angle)-j-1])
-                if i == 0:#################
-                    self.rotated_vessel_ind_list.append(rotated_vessel_ind)################
+                if i == 0:
+                    self.rotated_non_vessel_ind_sizes.append(rotated_non_vessel_ind[0].size)
+                                                                
                 (vessel_deriv_mat,
                  non_vessel_deriv_mat) = self.getDerivMat(rotated_img,
                                                           rotated_vessel_ind,
@@ -118,10 +118,16 @@ class FeatureMatMaker(object):
                 vessel_feature_mat_ax0_size = vessel_feature_submat.shape[0]
             if not 'non_vessel_feature_mat_ax0_size' in locals():
                 non_vessel_feature_mat_ax0_size = non_vessel_feature_submat.shape[0]
+                
             vessel_feature_submat_list.append(vessel_feature_submat)
+            non_vessel_feature_submat_list.append(non_vessel_feature_submat)
         vessel_feature_mat = np.array([]).reshape((vessel_feature_mat_ax0_size,0))
+        non_vessel_feature_mat = np.array([]).reshape((non_vessel_feature_mat_ax0_size,0))
+        
         for i in vessel_feature_submat_list:
             vessel_feature_mat = np.concatenate((vessel_feature_mat,i),1)
+        for i in non_vessel_feature_submat_list:
+            non_vessel_feature_mat = np.concatenate((non_vessel_feature_mat,i),1)
 
         ####################################
         """
