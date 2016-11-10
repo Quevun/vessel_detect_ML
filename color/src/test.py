@@ -207,7 +207,7 @@ orient = np.random.rand(5,5)*180-90
                                                                non_vessel_ind)
 """
 
-# test FeatureMat.getTrainMat
+"""# test FeatureMatMaker.getTrainMat
 scale = np.arange(3,50,5)
 #img = (np.random.rand(5,5,3)*255).astype(np.uint8)
 img = cv2.imread('../data/color/quek1.bmp')
@@ -222,9 +222,8 @@ feature_mat_maker = featuremat.FeatureMatMaker(img,scale)
  categorized_vessel_ind,
  categorized_non_vessel_ind) = feature_mat_maker.getTrainMat(vessel_ind)
  
-img = featuremat.getScaledImg(img,48)
+img = featuremat.getScaledImg(img,33)
 rotated_vessel_ind_sizes = [166,221,82,49,21,9,13,8,6,8,2,6,7,11,14,25,47,111] # size of categorized vessel ind for each orientation(for quek1.bmp)
-rotated_non_vessel_ind_sizes = [260,269,160,128,130,106,82,80,91,101,70,84,104,103,126,118,148,243]
 (rotated_img,
  rotated_vessel_ind,
  rotated_non_vessel_ind) = feature_mat_maker.rotateImgAndInd(img,
@@ -262,10 +261,10 @@ xyy3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,1,2,ksize=5)
 yyy3 = cv2.Sobel(rotated_img[:,:,2],cv2.CV_64F,0,3,ksize=5)
 
 bkmrk = sum(rotated_vessel_ind_sizes[:16])
-bkmrk2 = sum(rotated_non_vessel_ind_sizes[:16])
+bkmrk2 = sum(feature_mat_maker.rotated_non_vessel_ind_sizes[:16])
 offset = rotated_vessel_ind_sizes[16]
-offset2 = 270
-offset3 = rotated_non_vessel_ind_sizes[16]
+offset2 = 180
+offset3 = feature_mat_maker.rotated_non_vessel_ind_sizes[16]
 print np.array_equal(x[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+1])
 print np.array_equal(y[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+2])
 print np.array_equal(xx[rotated_vessel_ind],vessel_feature_mat[bkmrk:bkmrk+offset,offset2+3])
@@ -325,3 +324,27 @@ print np.array_equal(xxx3[rotated_non_vessel_ind],non_vessel_feature_mat[bkmrk2:
 print np.array_equal(xxy3[rotated_non_vessel_ind],non_vessel_feature_mat[bkmrk2:bkmrk2+offset3,offset2+20+7])
 print np.array_equal(xyy3[rotated_non_vessel_ind],non_vessel_feature_mat[bkmrk2:bkmrk2+offset3,offset2+20+8])
 print np.array_equal(yyy3[rotated_non_vessel_ind],non_vessel_feature_mat[bkmrk2:bkmrk2+offset3,offset2+20+9])
+"""
+
+"""# test efficient version of FeatureMatMaker.getTrainMat
+scale = np.arange(3,50,5)
+img = cv2.imread('../data/color/quek1.bmp')
+vessel_bin = np.load('../data/vessels/red/quek1.npy')
+vessel_ind = np.nonzero(vessel_bin)
+feature_mat_maker = featuremat.FeatureMatMaker(img,scale)
+
+start = time.time()
+(vessel_feature_mat,
+ non_vessel_feature_mat) = feature_mat_maker.getTrainMat(vessel_ind)
+print time.time() - start
+
+start = time.time()
+(vessel_feature_mat2,
+ non_vessel_feature_mat2) = feature_mat_maker.getTrainMat2(vessel_ind,feature_mat_maker.non_vessel_ind)
+print time.time() - start
+
+np.array_equal(vessel_feature_mat,vessel_feature_mat2)
+np.array_equal(non_vessel_feature_mat,non_vessel_feature_mat2)
+"""
+
+# test 

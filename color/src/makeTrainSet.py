@@ -9,12 +9,11 @@ import cv2
 import numpy as np
 import scipy.io
 import featuremat
-import featuremat_noscale
 import os
 
 if __name__ == "__main__":
     scales = np.arange(3,50,5)
-    num_features = 30#len(scales)*30
+    num_features = len(scales)*30
     threshold = 200000
     vessel_feature_mat = np.array([]).reshape(0,num_features)
     non_vessel_feature_mat = np.array([]).reshape(0,num_features)
@@ -26,14 +25,14 @@ if __name__ == "__main__":
         img = cv2.pyrDown(img)
         vessel_ind = np.nonzero(vessel_bin)
     
-        feature_mat_maker = featuremat_noscale.FeatureMatMaker(img)#featuremat.FeatureMatMaker(img,scales)
+        feature_mat_maker = featuremat.FeatureMatMaker(img,scales)
         vessel_feature,non_vessel_feature = feature_mat_maker.getTrainMat(vessel_ind)
         vessel_feature_mat = np.concatenate((vessel_feature_mat,vessel_feature),0)
         non_vessel_feature_mat = np.concatenate((non_vessel_feature_mat,non_vessel_feature),0)
         
         sample_size = vessel_feature_mat.shape[0]+non_vessel_feature_mat.shape[0]
         if sample_size > threshold:    
-            scipy.io.savemat('../data/feature_mat/noscale/batch'+str(i)+'.mat',
+            scipy.io.savemat('../data/feature_mat/batch'+str(i)+'.mat',
                              dict(vessel_feature_mat=vessel_feature_mat,
                                   non_vessel_feature_mat=non_vessel_feature_mat))
             i += 1
@@ -41,6 +40,6 @@ if __name__ == "__main__":
             non_vessel_feature_mat = np.array([]).reshape(0,num_features)
         
     if vessel_feature_mat.size != 0:
-        scipy.io.savemat('../data/feature_mat/noscale/batch'+str(i)+'.mat',
+        scipy.io.savemat('../data/feature_mat/batch'+str(i)+'.mat',
                              dict(vessel_feature_mat=vessel_feature_mat,
                                   non_vessel_feature_mat=non_vessel_feature_mat))
