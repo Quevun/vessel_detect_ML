@@ -347,4 +347,66 @@ np.array_equal(vessel_feature_mat,vessel_feature_mat2)
 np.array_equal(non_vessel_feature_mat,non_vessel_feature_mat2)
 """
 
-# test 
+"""# test FeatureMatMaker.rotateImg
+scale = np.arange(3,50,5)
+img = cv2.imread('../data/color/quek1.bmp')
+img = cv2.pyrDown(img)
+feature_mat_maker = featuremat.FeatureMatMaker(img,scale)
+orient = feature_mat_maker.ridgeOrient()
+categorized = feature_mat_maker.categorizePixels(orient)
+rotated_img,rotated_is_angle = feature_mat_maker.rotateImg(img,categorized[1],75)
+cv2.imwrite('../data/junk/test1.jpg',rotated_img)
+cv2.imwrite('../data/junk/test2.jpg',rotated_is_angle)
+"""
+
+"""# orientation histogram
+import matplotlib.pyplot as plt
+import featuremat_normalized_features
+scale = np.arange(3,50,5)
+img = cv2.imread('../data/orientation/direction4.bmp')
+img = cv2.pyrDown(img)
+feature_mat_maker = featuremat_normalized_features.FeatureMatMaker(img,scale)
+rotated_img,dummy = feature_mat_maker.rotateImg(img,img[:,:,2],-50)
+orient = featuremat_normalized_features.ridgeOrient(img)
+orient = np.around(orient[np.logical_not(np.isnan(orient))],-1)
+bin = (orient == -90).astype(np.uint8)
+orient = orient + bin*180
+n, bins, patches = plt.hist(orient, 18, normed=1, facecolor='green', alpha=0.75)
+"""
+
+"""# normalize image orientation
+import featuremat_normalized_features
+scale = np.arange(3,50,5)
+img = cv2.imread('../data/color/tanaka3.bmp')
+img = cv2.pyrDown(img)
+feature_mat_maker = featuremat_normalized_features.FeatureMatMaker(img,scale)
+orient_img = featuremat_normalized_features.ridgeOrient(img)
+orient_img = np.around(orient_img[np.logical_not(np.isnan(orient_img))],-1)
+bin = (orient_img == -90).astype(np.uint8)
+orient_img = orient_img + bin*180
+
+u,ind = np.unique(orient_img,return_inverse=True)
+orient = u[np.argmax(np.bincount(ind))]
+
+#rotated_img,dummy = featuremat_normalized_features.rotateImg(img,img[:,:,2],orient)
+#cv2.imshow('stuff',rotated_img)
+#cv2.waitKey()
+#cv2.destroyAllWindows()
+"""
+
+"""# test numpy.hstack
+random=[]
+for i in range(10):
+    random.append(np.around(np.random.rand(40000)*100))
+foo = np.array([]).reshape(0,40000)
+
+start = time.time()
+for stuff in random:
+    foo = np.vstack((foo,stuff))
+print time.time()-start
+
+start = time.time()
+foo2 = np.vstack((random[0],random[1],random[2],random[3],random[4],random[5],random[6],random[7],random[8],random[9]))
+print time.time()-start
+print np.array_equal(foo,foo2)
+"""
