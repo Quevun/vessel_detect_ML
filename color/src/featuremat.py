@@ -217,6 +217,31 @@ class FeatureMatMaker(object):
         xyy = cv2.Sobel(img,cv2.CV_64F,1,2,ksize=5)
         yyy = cv2.Sobel(img,cv2.CV_64F,0,3,ksize=5)
         return (x,y,xx,yy,xy,xxx,xxy,xyy,yyy)
+        
+    def rotateImg(self,img,rot_angle):  # might want to keep padding info for reuse
+        diag_len = round(np.sqrt(img.shape[0]**2 + img.shape[1]**2))
+        x_pad = round((diag_len - img.shape[1] + 5)/2)*2
+        y_pad = round((diag_len - img.shape[0] + 5)/2)*2
+        padded_img = np.zeros((img.shape[0]+y_pad,img.shape[1]+x_pad,img.shape[2]))
+        x_mid = round(padded_img.shape[1]/2)
+        y_mid = round(padded_img.shape[0]/2)
+        
+        padded_img[y_pad/2:-y_pad/2,x_pad/2:-x_pad/2,:] = img
+        padded_img = padded_img.astype(np.uint8)
+        
+        rot_mat = cv2.getRotationMatrix2D((x_mid,y_mid),rot_angle,1)
+                
+        # rotate img
+        rotated_img = np.zeros((padded_img.shape))
+        rotated_img[:,:,0] = cv2.warpAffine(padded_img[:,:,0],rot_mat
+                                    ,(padded_img.shape[1],padded_img.shape[0]))
+        rotated_img[:,:,1] = cv2.warpAffine(padded_img[:,:,1],rot_mat
+                                    ,(padded_img.shape[1],padded_img.shape[0]))
+        rotated_img[:,:,2] = cv2.warpAffine(padded_img[:,:,2],rot_mat
+                                    ,(padded_img.shape[1],padded_img.shape[0]))
+        rotated_img = rotated_img.astype(np.uint8)
+        
+        return rotated_img
     
     def rotateImgAndInd(self,img,vessel_ind,non_vessel_ind,rot_angle):
         diag_len = round(np.sqrt(img.shape[0]**2 + img.shape[1]**2))
