@@ -8,7 +8,7 @@ Created on Sat Sep 03 15:58:10 2016
 import scipy.io
 import numpy as np
 import cv2
-import featuremat_noscale
+import featuremat
 
 def sigmoid(z):
     return 1/(1+np.exp(-z))
@@ -18,8 +18,8 @@ if __name__ == '__main__':
     filename = 'quek1'
     img = cv2.imread('../data/color/'+filename+'.bmp')
     img = cv2.pyrDown(img)
-    feature_mat = featuremat_noscale.FeatureMatMaker(img,scales).getMat()
-    mat_content = scipy.io.loadmat('../data/nn_param/normalized_features_special.mat')
+    feature_mat = featuremat.FeatureMatMaker(img,scales).getMat()
+    mat_content = scipy.io.loadmat('../data/nn_param/9ppl.mat')
     theta1 = mat_content['Theta1']
     theta2 = mat_content['Theta2']
     layer2_hypo = sigmoid(np.dot(feature_mat,theta1.T))
@@ -35,4 +35,4 @@ if __name__ == '__main__':
     #cv2.imshow('stuff',skin_bin.astype(np.uint8)*255)
     #cv2.waitKey()
     #cv2.destroyAllWindows()
-    cv2.imwrite('../data/findBloodVessels_results/noscale/'+filename+'.jpg',predict.astype(np.uint8)*255)
+    cv2.imwrite('../data/findBloodVessels_results/9ppl/'+filename+'.jpg',predict.astype(np.uint8)*255)

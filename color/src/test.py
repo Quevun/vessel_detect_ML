@@ -377,7 +377,7 @@ n, bins, patches = plt.hist(orient, 18, normed=1, facecolor='green', alpha=0.75)
 """# normalize image orientation
 import featuremat_normalized_features
 scale = np.arange(3,50,5)
-img = cv2.imread('../data/color/tanaka3.bmp')
+img = cv2.imread('../data/orientation/direction2.bmp')
 img = cv2.pyrDown(img)
 feature_mat_maker = featuremat_normalized_features.FeatureMatMaker(img,scale)
 orient_img = featuremat_normalized_features.ridgeOrient(img)
@@ -388,10 +388,11 @@ orient_img = orient_img + bin*180
 u,ind = np.unique(orient_img,return_inverse=True)
 orient = u[np.argmax(np.bincount(ind))]
 
-#rotated_img,dummy = featuremat_normalized_features.rotateImg(img,img[:,:,2],orient)
-#cv2.imshow('stuff',rotated_img)
-#cv2.waitKey()
-#cv2.destroyAllWindows()
+rotated_img,dummy = featuremat_normalized_features.rotateImg(img,img[:,:,2],orient)
+cv2.imshow('stuff',rotated_img)
+cv2.waitKey()
+cv2.destroyAllWindows()
+cv2.imwrite('../data/junk/direction2.jpg',rotated_img)
 """
 
 """# test numpy.hstack
