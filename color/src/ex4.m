@@ -2,7 +2,7 @@ hidden_layer_size = 15;
 num_labels = 2; 
 
 fprintf('Loading Data ...\n');
-load('../data/feature_mat/9ppl/batch1.mat');
+load('../data/feature_mat/9ppl/batch4.mat');
 feature_mat = [vessel_feature_mat; non_vessel_feature_mat];
 input_layer_size = size(vessel_feature_mat,2);
 y = [ones(size(vessel_feature_mat,1),1)*2; ones(size(non_vessel_feature_mat,1),1)];
