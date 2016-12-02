@@ -1,4 +1,4 @@
-input_layer_size = 300;
+input_layer_size = 450;
 hidden_layer_size = 50;
 num_labels = 2; 
 
@@ -26,4 +26,4 @@ Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
                  num_labels, (hidden_layer_size + 1));
 
-save -6 ../data/nn_param/major_vessels_only_7ppl.mat Theta1 Theta2
+save -6 ../data/nn_param/major_vessels_only-deriv4.mat Theta1 Theta2
