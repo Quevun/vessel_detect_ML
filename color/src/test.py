@@ -415,8 +415,8 @@ print np.array_equal(foo,foo2)
 # Skeletonize and prune final image
 import skimage.morphology
 import morphology
-filename = 'yoshimoto4'
-img = np.load('../data/findBloodVessels_results/major_vessels_only-deriv4/numpy_data/'+filename+'.npy')
+filename = 'zul4'
+img = np.load('../data/findBloodVessels_results/9ppl/numpy_data/'+filename+'.npy')
 skel = skimage.morphology.skeletonize(img>0)
 branch_len = 20
 pruned = skel.astype(np.uint8)*255
@@ -426,7 +426,7 @@ struc_ele_tuple = (struc_ele1,np.rot90(struc_ele1,1),np.rot90(struc_ele1,2),np.r
                    struc_ele2,np.rot90(struc_ele2,1),np.rot90(struc_ele2,2),np.rot90(struc_ele2,3))
 
 for i in range(branch_len):
-    end_points = np.zeros(np.shape(skel)).astype(np.bool)    
+    end_points = np.zeros(np.shape(skel)).astype(np.bool)
     for struc_ele in struc_ele_tuple:
         end_points = end_points + morphology.hitOrMiss(pruned,struc_ele)
     pruned = pruned * np.invert(end_points)
@@ -434,4 +434,4 @@ for i in range(branch_len):
 struc_ele3 = np.array([[0,0,0],[0,1,0],[0,0,0]])
 single_points = morphology.hitOrMiss(pruned,struc_ele3)
 pruned = pruned * np.invert(single_points)
-cv2.imwrite('../data/findBloodVessels_results/major_vessels_only-deriv4/cleaned/'+filename+'.jpg',pruned)
+cv2.imwrite('../data/findBloodVessels_results/9ppl/cleaned/'+filename+'.jpg',pruned)

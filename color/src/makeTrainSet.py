@@ -8,7 +8,7 @@ Created on Sun Aug 21 14:34:15 2016
 import cv2
 import numpy as np
 import scipy.io
-import featuremat_deriv4
+import featuremat
 import os
 
 if __name__ == "__main__":
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         img = cv2.pyrDown(img)
         vessel_ind = np.nonzero(vessel_bin)
     
-        feature_mat_maker = featuremat_deriv4.FeatureMatMaker(img,scales)
+        feature_mat_maker = featuremat.FeatureMatMaker(img,scales)
         vessel_feature,non_vessel_feature = feature_mat_maker.getTrainMat(vessel_ind)
         vessel_feature_mat = np.concatenate((vessel_feature_mat,vessel_feature),0)
         non_vessel_feature_mat = np.concatenate((non_vessel_feature_mat,non_vessel_feature),0)
