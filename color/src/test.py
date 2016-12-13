@@ -415,8 +415,8 @@ print np.array_equal(foo,foo2)
 # Skeletonize and prune final image
 import skimage.morphology
 import morphology
-filename = 'zul4'
-img = np.load('../data/findBloodVessels_results/9ppl/numpy_data/'+filename+'.npy')
+filename = 'tani2'
+img = np.load('../data/findBloodVessels_results/major_vessels_only_7ppl/numpy_data/'+filename+'.npy')
 skel = skimage.morphology.skeletonize(img>0)
 branch_len = 20
 pruned = skel.astype(np.uint8)*255
@@ -434,4 +434,4 @@ for i in range(branch_len):
 struc_ele3 = np.array([[0,0,0],[0,1,0],[0,0,0]])
 single_points = morphology.hitOrMiss(pruned,struc_ele3)
 pruned = pruned * np.invert(single_points)
-cv2.imwrite('../data/findBloodVessels_results/9ppl/cleaned/'+filename+'.jpg',pruned)
+cv2.imwrite('../data/findBloodVessels_results/major_vessels_only_7ppl/cleaned/'+filename+'.jpg',pruned)

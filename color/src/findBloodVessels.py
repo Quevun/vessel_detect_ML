@@ -15,11 +15,11 @@ def sigmoid(z):
     
 if __name__ == '__main__':
     scales = np.arange(3,50,5)
-    filename = 'zul4'
+    filename = 'tani2'
     img = cv2.imread('../data/color/'+filename+'.bmp')
-    img = cv2.pyrDown(img)
+    #img = cv2.pyrDown(img)
     feature_mat = featuremat.FeatureMatMaker(img,scales).getMat()
-    mat_content = scipy.io.loadmat('../data/nn_param/9ppl.mat')
+    mat_content = scipy.io.loadmat('../data/nn_param/major_vessels_only_7ppl.mat')
     theta1 = mat_content['Theta1']
     theta2 = mat_content['Theta2']
     layer2_hypo = sigmoid(np.dot(feature_mat,theta1.T))
@@ -36,5 +36,5 @@ if __name__ == '__main__':
     #cv2.imshow('stuff',skin_bin.astype(np.uint8)*255)
     #cv2.waitKey()
     #cv2.destroyAllWindows()
-    cv2.imwrite('../data/findBloodVessels_results/9ppl/'+filename+'.jpg',predict)
-    np.save('../data/findBloodVessels_results/9ppl/numpy_data/'+filename,predict)
+    cv2.imwrite('../data/findBloodVessels_results/major_vessels_only_7ppl/'+filename+'.jpg',predict)
+    np.save('../data/findBloodVessels_results/major_vessels_only_7ppl/numpy_data/'+filename,predict)
