@@ -415,7 +415,7 @@ print np.array_equal(foo,foo2)
 # Skeletonize and prune final image
 import skimage.morphology
 import morphology
-filename = 'tani2'
+filename = 'video'
 img = np.load('../data/findBloodVessels_results/major_vessels_only_7ppl/numpy_data/'+filename+'.npy')
 skel = skimage.morphology.skeletonize(img>0)
 branch_len = 20
@@ -435,3 +435,13 @@ struc_ele3 = np.array([[0,0,0],[0,1,0],[0,0,0]])
 single_points = morphology.hitOrMiss(pruned,struc_ele3)
 pruned = pruned * np.invert(single_points)
 cv2.imwrite('../data/findBloodVessels_results/major_vessels_only_7ppl/cleaned/'+filename+'.jpg',pruned)
+
+
+"""
+# Turn vessel training data into images
+import os
+for filename in os.listdir('../data/vessels/major_vessels_only'):
+    vessel_bin = np.load('../data/vessels/major_vessels_only/'+filename)
+    name_no_exten = filename.split('.')[0]
+    cv2.imwrite('../data/vessels/major_vessels_only_img/'+name_no_exten+'.jpg',vessel_bin)
+"""

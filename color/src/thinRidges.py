@@ -74,4 +74,4 @@ color_small[:,:,2] = color_small[:,:,2]*(pruned==0)
 cv2.imwrite('../data/color/small/red/'+filename+'_vessels.jpg',color_small)
 """
 manualRemove(pruned)
-np.save('../data/vessels/major_vessels_only/'+filename,pruned)
+np.save('../data/vessels/major_vessels_only2/'+filename,pruned)
