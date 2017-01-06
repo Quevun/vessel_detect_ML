@@ -35,6 +35,24 @@ def clean(img):
     pruned = pruned * np.invert(single_points)
     return pruned
     
+def findBloodVessels(img):
+    scales = np.arange(3,50,5)
+    feature_mat = featuremat.FeatureMatMaker(img,scales).getMat()
+    mat_content = scipy.io.loadmat('../data/nn_param/major_vessels_only_7ppl.mat')
+    theta1 = mat_content['Theta1']
+    theta2 = mat_content['Theta2']
+    layer2_hypo = sigmoid(np.dot(feature_mat,theta1.T))
+    
+    temp = np.ones((np.size(layer2_hypo,0),np.size(layer2_hypo,1)+1))
+    temp[:,1:] = layer2_hypo
+    layer2_hypo = temp
+    hypo = sigmoid(np.dot(layer2_hypo,theta2.T))
+    predict = np.reshape(np.argmax(hypo,1),(img.shape[0],img.shape[1]),'F')
+    predict = predict.astype(np.uint8)*255
+    
+    cleaned = clean(predict)
+    return cleaned
+    
 if __name__ == '__main__':
     scales = np.arange(3,50,5)
     filename = 'video'
