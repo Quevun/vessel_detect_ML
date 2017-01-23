@@ -8,11 +8,17 @@ Created on Fri Jan 06 10:51:36 2017
 import cv2
 import numpy as np
 import findBloodVessels
+import time
 
 filename = 'video.avi'
 cap = cv2.VideoCapture('../data/video/'+filename)
 
+skip = 100
+for i in range(skip):
+    cap.grab()
+
 while cap.isOpened():
+    start = time.time()
     ret, frame = cap.read()
     frame = cv2.pyrDown(frame)
     vessel_bin = findBloodVessels.findBloodVessels(frame)
@@ -23,5 +29,6 @@ while cap.isOpened():
     
     if cv2.waitKey(25) == ord('q'):
         break
+    print time.time() - start
     
 cv2.destroyAllWindows()

@@ -45,8 +45,8 @@ def manualRemove(img):
             cv2.imshow('Manual White Pixel Removal',img)
     cv2.destroyAllWindows()
 
-filename = 'yokoyama4'
-img = np.load('../data/eigen/red/'+filename+'.npy')
+filename = 'tanaka1'
+img = np.load('../data/eigen/'+filename+'.npy')
 skel = skimage.morphology.skeletonize(img>0)
 branch_len = 20
 pruned = skel.astype(np.uint8)*255
@@ -74,4 +74,4 @@ color_small[:,:,2] = color_small[:,:,2]*(pruned==0)
 cv2.imwrite('../data/color/small/red/'+filename+'_vessels.jpg',color_small)
 """
 manualRemove(pruned)
-np.save('../data/vessels/major_vessels_only2/'+filename,pruned)
+#np.save('../data/vessels/major_vessels_only2/'+filename,pruned)
