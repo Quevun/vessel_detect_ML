@@ -1,4 +1,4 @@
-input_layer_size = 180;
+input_layer_size = 90;
 hidden_layer_size = 50;
 num_labels = 2; 
 
@@ -8,7 +8,7 @@ initial_Theta2 = randInitializeWeights(hidden_layer_size, num_labels);
 initial_nn_params = [initial_Theta1(:) ; initial_Theta2(:)];
 
 fprintf('\nTraining Neural Network... \n')
-options = optimset('MaxIter', 100);
+options = optimset('MaxIter', 30);
 lambda = 1;
 % Create "short hand" for the cost function to be minimized
 costFunction = @(p) nnCostFuncMultiFiles(p, ...
@@ -26,4 +26,4 @@ Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
                  num_labels, (hidden_layer_size + 1));
 
-save -6 ../data/nn_param/major_vessels_only-deriv2.mat Theta1 Theta2
+save -6 ../data/nn_param/major_vessels_only_7ppl-less_scales.mat Theta1 Theta2

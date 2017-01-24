@@ -12,9 +12,9 @@ import featuremat
 import os
 
 if __name__ == "__main__":
-    scales = np.arange(3,50,5)
+    scales = np.arange(3,25,5)
     num_features = len(scales)*18
-    threshold = 30000
+    threshold = 100000#30000
     vessel_feature_mat = np.array([]).reshape(0,num_features)
     non_vessel_feature_mat = np.array([]).reshape(0,num_features)
     
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         
         sample_size = vessel_feature_mat.shape[0]+non_vessel_feature_mat.shape[0]
         if sample_size > threshold:    
-            scipy.io.savemat('../data/feature_mat/major_vessels_only-deriv2/batch'+str(i)+'.mat',
+            scipy.io.savemat('../data/feature_mat/major_vessels_only_7ppl-less_scales/batch'+str(i)+'.mat',
                              dict(vessel_feature_mat=vessel_feature_mat,
                                   non_vessel_feature_mat=non_vessel_feature_mat))
             i += 1
@@ -40,6 +40,6 @@ if __name__ == "__main__":
             non_vessel_feature_mat = np.array([]).reshape(0,num_features)
         
     if vessel_feature_mat.size != 0:
-        scipy.io.savemat('../data/feature_mat/major_vessels_only-deriv2/batch'+str(i)+'.mat',
+        scipy.io.savemat('../data/feature_mat/major_vessels_only_7ppl-less_scales/batch'+str(i)+'.mat',
                              dict(vessel_feature_mat=vessel_feature_mat,
                                   non_vessel_feature_mat=non_vessel_feature_mat))
