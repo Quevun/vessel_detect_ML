@@ -14,13 +14,13 @@ import os
 if __name__ == "__main__":
     scales = np.arange(3,25,5)
     num_features = len(scales)*18
-    threshold = 100000#30000
+    threshold = 150000#30000
     vessel_feature_mat = np.array([]).reshape(0,num_features)
     non_vessel_feature_mat = np.array([]).reshape(0,num_features)
     
     i = 1
-    for filename in os.listdir('../data/vessels/major_vessels_only'):
-        vessel_bin = np.load('../data/vessels/major_vessels_only/'+filename)
+    for filename in os.listdir('../data/vessels/major_vessels_only-no_kamiyama'):
+        vessel_bin = np.load('../data/vessels/major_vessels_only-no_kamiyama/'+filename)
         img = cv2.imread('../data/color/'+filename.split('.')[0]+'.bmp')
         img = cv2.pyrDown(img)
         vessel_ind = np.nonzero(vessel_bin)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         
         sample_size = vessel_feature_mat.shape[0]+non_vessel_feature_mat.shape[0]
         if sample_size > threshold:    
-            scipy.io.savemat('../data/feature_mat/major_vessels_only_7ppl-less_scales/batch'+str(i)+'.mat',
+            scipy.io.savemat('../data/feature_mat/major_vessels_only-no_kamiyama/batch'+str(i)+'.mat',
                              dict(vessel_feature_mat=vessel_feature_mat,
                                   non_vessel_feature_mat=non_vessel_feature_mat))
             i += 1
@@ -40,6 +40,6 @@ if __name__ == "__main__":
             non_vessel_feature_mat = np.array([]).reshape(0,num_features)
         
     if vessel_feature_mat.size != 0:
-        scipy.io.savemat('../data/feature_mat/major_vessels_only_7ppl-less_scales/batch'+str(i)+'.mat',
+        scipy.io.savemat('../data/feature_mat/major_vessels_only-no_kamiyama/batch'+str(i)+'.mat',
                              dict(vessel_feature_mat=vessel_feature_mat,
                                   non_vessel_feature_mat=non_vessel_feature_mat))
