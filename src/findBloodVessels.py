@@ -59,7 +59,7 @@ if __name__ == '__main__':
     img = cv2.imread('../data/color/'+filename+'.bmp')
     img = cv2.pyrDown(img)
     feature_mat = featuremat.FeatureMatMaker(img,scales).getMat()
-    mat_content = scipy.io.loadmat('../data/nn_param/major_vessels_only-no_kamiyama.mat')
+    mat_content = scipy.io.loadmat('../data/nn_param/major_vessels_only_7ppl.mat')
     theta1 = mat_content['Theta1']
     theta2 = mat_content['Theta2']
     layer2_hypo = sigmoid(np.dot(feature_mat,theta1.T))
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     predict = np.reshape(np.argmax(hypo,1),(img.shape[0],img.shape[1]),'F')
     predict = predict.astype(np.uint8)*255
     
-    cv2.imwrite('../data/findBloodVessels_results/major_vessels_only-no_kamiyama/'+filename+'.jpg',predict)
+    #cv2.imwrite('../data/findBloodVessels_results/major_vessels_only_7ppl/'+filename+'.jpg',predict)
     cleaned = clean(predict)
-    cv2.imwrite('../data/findBloodVessels_results/major_vessels_only-no_kamiyama/cleaned/'+filename+'.jpg',cleaned)
+    cv2.imwrite('../data/findBloodVessels_results/major_vessels_only_7ppl/'+filename+'.jpg',cleaned)
     #np.save('../data/findBloodVessels_results/major_vessels_only_7ppl/numpy_data/'+filename,predict)

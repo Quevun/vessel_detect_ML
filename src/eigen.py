@@ -36,4 +36,4 @@ if __name__ == '__main__':
     eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
     major = np.amax(eigval_array,2) > maj_thres
     
-    np.save('../data/eigen/red/'+filename,major.astype(np.uint8)*255)
+    np.save('../data/eigen/'+filename,major.astype(np.uint8)*255)
